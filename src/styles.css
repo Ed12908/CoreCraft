@@ -1,0 +1,60 @@
+@import "tailwindcss";
+@plugin "daisyui/index.js";
+
+html,
+body,
+#root {
+  min-height: 100%;
+  height: 100%;
+}
+
+body {
+  margin: 0;
+}
+
+.react-flow__handle {
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--color-base-100);
+}
+
+.react-flow__edge-path {
+  stroke-width: 2.5;
+}
+
+.micro-node {
+  min-width: 150px;
+  box-shadow: 0 12px 30px rgb(0 0 0 / 0.22);
+}
+
+.micro-node[data-selected="true"] {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.micro-port-label {
+  font-size: 0.68rem;
+  line-height: 1rem;
+  opacity: 0.8;
+}
+
+.micro-flow-grid {
+  background:
+    radial-gradient(circle at 1px 1px, rgb(148 163 184 / 0.24) 1px, transparent 0),
+    var(--color-base-200);
+  background-size: 24px 24px;
+}
+.react-flow__edge.signal-high .react-flow__edge-path {
+  stroke: var(--color-success);
+}
+
+.react-flow__edge.signal-low .react-flow__edge-path {
+  stroke: var(--color-base-content);
+  opacity: 0.65;
+}
+
+.react-flow__edge.signal-unknown .react-flow__edge-path {
+  stroke: var(--color-warning);
+  stroke-dasharray: 6 4;
+  opacity: 0.75;
+}

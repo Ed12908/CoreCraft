@@ -1,0 +1,131 @@
+import type { Level } from "../engine/types";
+import { levelsSchema } from "./schema";
+
+const rawLevels: Level[] = [
+  {
+    id: "wire-switch-lamp",
+    title: "Switch to Lamp",
+    chapter: "Signals",
+    prompt: "Connect switch A to lamp OUT. The lamp should copy the switch value.",
+    allowedComponents: [],
+    givens: [
+      { id: "input-a", kind: "input", label: "A", position: { x: 60, y: 160 } },
+      { id: "output-out", kind: "output", label: "OUT", position: { x: 560, y: 160 } },
+    ],
+    tests: [
+      { name: "A = 0", inputs: { A: 0 }, outputs: { OUT: 0 } },
+      { name: "A = 1", inputs: { A: 1 }, outputs: { OUT: 1 } },
+    ],
+    unlocks: ["not"],
+    hints: ["Drag from the small output handle on A to the input handle on OUT."],
+    successMessage: "Signal flow is working. NOT is now available.",
+  },
+  {
+    id: "not-gate",
+    title: "Invert a Signal",
+    chapter: "Gates",
+    prompt: "Use a NOT gate so OUT is 1 when A is 0, and 0 when A is 1.",
+    allowedComponents: ["not"],
+    givens: [
+      { id: "input-a", kind: "input", label: "A", position: { x: 60, y: 160 } },
+      { id: "output-out", kind: "output", label: "OUT", position: { x: 640, y: 160 } },
+    ],
+    tests: [
+      { name: "A = 0", inputs: { A: 0 }, outputs: { OUT: 1 } },
+      { name: "A = 1", inputs: { A: 1 }, outputs: { OUT: 0 } },
+    ],
+    unlocks: ["and"],
+    hints: ["Place NOT between A and OUT.", "A NOT gate has one input and one output."],
+    successMessage: "Inversion is working. AND is now available.",
+  },
+  {
+    id: "and-gate",
+    title: "Both Inputs",
+    chapter: "Gates",
+    prompt: "Use an AND gate so OUT is 1 only when both A and B are 1.",
+    allowedComponents: ["and"],
+    givens: [
+      { id: "input-a", kind: "input", label: "A", position: { x: 60, y: 100 } },
+      { id: "input-b", kind: "input", label: "B", position: { x: 60, y: 240 } },
+      { id: "output-out", kind: "output", label: "OUT", position: { x: 660, y: 170 } },
+    ],
+    tests: [
+      { name: "00", inputs: { A: 0, B: 0 }, outputs: { OUT: 0 } },
+      { name: "01", inputs: { A: 0, B: 1 }, outputs: { OUT: 0 } },
+      { name: "10", inputs: { A: 1, B: 0 }, outputs: { OUT: 0 } },
+      { name: "11", inputs: { A: 1, B: 1 }, outputs: { OUT: 1 } },
+    ],
+    unlocks: ["or"],
+    hints: ["AND has two input handles. Connect A and B to them, then connect the output to OUT."],
+    successMessage: "The AND truth table passes. OR is now available.",
+  },
+  {
+    id: "or-gate",
+    title: "Either Input",
+    chapter: "Gates",
+    prompt: "Use an OR gate so OUT is 1 when A or B is 1.",
+    allowedComponents: ["or"],
+    givens: [
+      { id: "input-a", kind: "input", label: "A", position: { x: 60, y: 100 } },
+      { id: "input-b", kind: "input", label: "B", position: { x: 60, y: 240 } },
+      { id: "output-out", kind: "output", label: "OUT", position: { x: 660, y: 170 } },
+    ],
+    tests: [
+      { name: "00", inputs: { A: 0, B: 0 }, outputs: { OUT: 0 } },
+      { name: "01", inputs: { A: 0, B: 1 }, outputs: { OUT: 1 } },
+      { name: "10", inputs: { A: 1, B: 0 }, outputs: { OUT: 1 } },
+      { name: "11", inputs: { A: 1, B: 1 }, outputs: { OUT: 1 } },
+    ],
+    unlocks: [],
+    hints: ["OR is almost the opposite of AND for 01 and 10."],
+    successMessage: "The OR truth table passes.",
+  },
+  {
+    id: "xor-from-basics",
+    title: "Exactly One Input",
+    chapter: "Composite Gates",
+    prompt: "Build XOR using NOT, AND, and OR. OUT should be 1 only when exactly one input is 1.",
+    allowedComponents: ["not", "and", "or"],
+    givens: [
+      { id: "input-a", kind: "input", label: "A", position: { x: 60, y: 100 } },
+      { id: "input-b", kind: "input", label: "B", position: { x: 60, y: 260 } },
+      { id: "output-out", kind: "output", label: "OUT", position: { x: 760, y: 180 } },
+    ],
+    tests: [
+      { name: "00", inputs: { A: 0, B: 0 }, outputs: { OUT: 0 } },
+      { name: "01", inputs: { A: 0, B: 1 }, outputs: { OUT: 1 } },
+      { name: "10", inputs: { A: 1, B: 0 }, outputs: { OUT: 1 } },
+      { name: "11", inputs: { A: 1, B: 1 }, outputs: { OUT: 0 } },
+    ],
+    unlocks: ["xor"],
+    hints: [
+      "One formula is (A AND NOT B) OR (NOT A AND B).",
+      "You need two NOT gates, two AND gates, and one OR gate.",
+    ],
+    successMessage: "XOR is working. The XOR component is now available.",
+  },
+  {
+    id: "half-adder",
+    title: "Half Adder",
+    chapter: "Adders",
+    prompt: "Build a half adder. SUM is A XOR B. CARRY is A AND B.",
+    allowedComponents: ["xor", "and"],
+    givens: [
+      { id: "input-a", kind: "input", label: "A", position: { x: 60, y: 100 } },
+      { id: "input-b", kind: "input", label: "B", position: { x: 60, y: 260 } },
+      { id: "output-sum", kind: "output", label: "SUM", position: { x: 680, y: 100 } },
+      { id: "output-carry", kind: "output", label: "CARRY", position: { x: 680, y: 260 } },
+    ],
+    tests: [
+      { name: "0 + 0", inputs: { A: 0, B: 0 }, outputs: { SUM: 0, CARRY: 0 } },
+      { name: "0 + 1", inputs: { A: 0, B: 1 }, outputs: { SUM: 1, CARRY: 0 } },
+      { name: "1 + 0", inputs: { A: 1, B: 0 }, outputs: { SUM: 1, CARRY: 0 } },
+      { name: "1 + 1", inputs: { A: 1, B: 1 }, outputs: { SUM: 0, CARRY: 1 } },
+    ],
+    unlocks: [],
+    hints: ["Use XOR for SUM and AND for CARRY.", "A single input output can feed multiple gates."],
+    successMessage: "The half adder passes every case. This is the first reusable arithmetic unit.",
+  },
+];
+
+export const levels = levelsSchema.parse(rawLevels);

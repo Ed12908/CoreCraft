@@ -23,6 +23,7 @@ body {
 }
 
 .micro-node {
+  position: relative;
   min-width: 150px;
   box-shadow: 0 12px 30px rgb(0 0 0 / 0.22);
 }
@@ -30,6 +31,60 @@ body {
 .micro-node[data-selected="true"] {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
+}
+
+.micro-delete-button {
+  display: grid;
+  place-items: center;
+  width: 1.65rem;
+  height: 1.65rem;
+  border: 1px solid color-mix(in oklab, var(--color-error), var(--color-base-100) 25%);
+  border-radius: 999px;
+  background: var(--color-error);
+  color: var(--color-error-content);
+  box-shadow: 0 8px 18px rgb(0 0 0 / 0.24);
+  cursor: pointer;
+  transition:
+    background-color 120ms ease,
+    box-shadow 120ms ease,
+    opacity 120ms ease,
+    transform 120ms ease;
+}
+
+.micro-delete-button:hover {
+  background: color-mix(in oklab, var(--color-error), black 12%);
+  box-shadow: 0 10px 24px rgb(0 0 0 / 0.3);
+}
+
+.micro-delete-button:focus-visible {
+  outline: 2px solid var(--color-error);
+  outline-offset: 2px;
+}
+
+.micro-delete-icon {
+  width: 0.9rem;
+  height: 0.9rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-width: 2;
+}
+
+.micro-node-delete {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 10;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(45%, -45%) scale(0.82);
+}
+
+.micro-node:hover .micro-node-delete,
+.micro-node:focus-within .micro-node-delete {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translate(45%, -45%) scale(1);
 }
 
 .micro-port-label {
@@ -57,4 +112,15 @@ body {
   stroke: var(--color-warning);
   stroke-dasharray: 6 4;
   opacity: 0.75;
+}
+
+.micro-wire-toolbar {
+  display: grid;
+  place-items: center;
+  padding-bottom: 0.35rem;
+}
+
+.micro-wire-delete-button {
+  width: 1.5rem;
+  height: 1.5rem;
 }

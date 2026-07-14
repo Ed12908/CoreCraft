@@ -1,8 +1,9 @@
 import { memo } from "react";
-import { Handle, Position, type NodeProps } from "@xyflow/react";
-import type { CircuitNode, ComponentKind } from "../engine/types";
+import { Handle, Position, useReactFlow, type NodeProps } from "@xyflow/react";
+import type { CircuitEdge, CircuitNode, ComponentKind } from "../engine/types";
 import { getDefinition, handleId } from "../engine/componentRegistry";
 import { useCircuitRuntime } from "./CircuitRuntimeContext";
+import { DeleteIcon } from "./DeleteIcon";
 
 function portTop(index: number, count: number): string {
   if (count === 1) return "50%";
@@ -26,14 +27,31 @@ function formatValue(value: 0 | 1 | undefined): string {
   return value === undefined ? "?" : String(value);
 }
 
-function ComponentNodeBase({ id, data, selected }: NodeProps<CircuitNode>) {
+function ComponentNodeBase({ id, data, selected, deletable }: NodeProps<CircuitNode>) {
   const definition = getDefinition(data.kind);
   const { simulation, toggleInput } = useCircuitRuntime();
+  const { deleteElements } = useReactFlow<CircuitNode, CircuitEdge>();
   const outputValue = simulation.nodeOutputs[id]?.out;
   const inputValue = simulation.nodeInputs[id]?.in;
 
   return (
     <div className="micro-node card border border-base-300 bg-base-100" data-selected={selected ? "true" : "false"}>
+      {deletable && (
+        <button
+          aria-label={`Delete ${data.label}`}
+          className="micro-delete-button micro-node-delete nodrag nopan"
+          onClick={(event) => {
+            event.preventDefault();
+            event.stopPropagation();
+            void deleteElements({ nodes: [{ id }] });
+          }}
+          title={`Delete ${data.label}`}
+          type="button"
+        >
+          <DeleteIcon />
+        </button>
+      )}
+
       {definition.inputs.map((port, index) => (
         <Handle
           key={port.id}

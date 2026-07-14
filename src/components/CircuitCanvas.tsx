@@ -17,9 +17,14 @@ import type { SimulationResult } from "../engine/simulator";
 import { makeId } from "../utils/id";
 import { ComponentNode } from "./ComponentNode";
 import { CircuitRuntimeContext } from "./CircuitRuntimeContext";
+import { WireEdge } from "./WireEdge";
 
 const nodeTypes = {
   component: ComponentNode,
+};
+
+const edgeTypes = {
+  wire: WireEdge,
 };
 
 type CircuitCanvasProps = {
@@ -65,6 +70,7 @@ export function CircuitCanvas({
         const value = simulation.edgeValues[edge.id];
         return {
           ...edge,
+          type: "wire",
           animated: value === 1,
           label: value === undefined ? "?" : String(value),
           className: value === 1 ? "signal-high" : value === 0 ? "signal-low" : "signal-unknown",
@@ -87,7 +93,7 @@ export function CircuitCanvas({
           {
             ...connection,
             id: makeId("wire"),
-            type: "default",
+            type: "wire",
           },
           currentEdges,
         ),
@@ -122,6 +128,7 @@ export function CircuitCanvas({
           nodes={nodes}
           edges={displayEdges}
           nodeTypes={nodeTypes}
+          edgeTypes={edgeTypes}
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
           onConnect={onConnect}

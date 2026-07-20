@@ -1,4 +1,5 @@
-import type { Bit, Level } from "../engine/types";
+import { maxPointsForLevel } from "../engine/scoring";
+import type { Bit, Level, LevelScore } from "../engine/types";
 import type { SimulationResult } from "../engine/simulator";
 import type { TestRunResult } from "../engine/runLevelTests";
 
@@ -6,6 +7,8 @@ type InspectorPanelProps = {
   level: Level;
   simulation: SimulationResult;
   testRun: TestRunResult | null;
+  levelScore: LevelScore | undefined;
+  currentUsedComponents: number;
   statusMessage: string;
   onRunTests: () => void;
   onReset: () => void;
@@ -24,6 +27,8 @@ export function InspectorPanel({
   level,
   simulation,
   testRun,
+  levelScore,
+  currentUsedComponents,
   statusMessage,
   onRunTests,
   onReset,
@@ -32,6 +37,8 @@ export function InspectorPanel({
   solved,
 }: InspectorPanelProps) {
   const visibleIssues = simulation.issues.slice(0, 4);
+  const currentMinimal = currentUsedComponents <= level.minimumComponents;
+  const bestPoints = levelScore ? `${levelScore.points}/${levelScore.maxPoints}` : `0/${maxPointsForLevel()}`;
 
   return (
     <div className="flex h-full flex-col gap-4 overflow-y-auto pr-1">
@@ -41,6 +48,19 @@ export function InspectorPanel({
             <div className="badge badge-outline">{level.chapter}</div>
             <h1 className="mt-2 text-xl font-bold">{level.title}</h1>
             <p className="mt-2 text-sm opacity-80">{level.prompt}</p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2">
+            <div className="rounded-box bg-base-200 px-3 py-2">
+              <div className="text-xs font-semibold uppercase tracking-wide opacity-60">Best</div>
+              <div className="text-lg font-bold">{bestPoints} pts</div>
+            </div>
+            <div className="rounded-box bg-base-200 px-3 py-2">
+              <div className="text-xs font-semibold uppercase tracking-wide opacity-60">Gates</div>
+              <div className={`text-lg font-bold ${currentMinimal ? "text-success" : "text-warning"}`}>
+                {currentUsedComponents}/{level.minimumComponents}
+              </div>
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-2">

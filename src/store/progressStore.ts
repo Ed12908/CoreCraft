@@ -1,14 +1,16 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import type { CircuitEdge, CircuitNode, GateKind, SavedCircuit } from "../engine/types";
+import { isBetterScore } from "../engine/scoring";
+import type { CircuitEdge, CircuitNode, GateKind, LevelScore, SavedCircuit } from "../engine/types";
 
 export type ProgressState = {
   currentLevelIndex: number;
   solvedLevelIds: string[];
   unlockedComponents: GateKind[];
+  levelScores: Record<string, LevelScore>;
   circuits: Record<string, SavedCircuit>;
   setCurrentLevelIndex: (index: number) => void;
-  markSolved: (levelId: string, unlocks: GateKind[]) => void;
+  markSolved: (levelId: string, unlocks: GateKind[], score: LevelScore) => void;
   saveCircuit: (levelId: string, nodes: CircuitNode[], edges: CircuitEdge[]) => void;
   clearCircuit: (levelId: string) => void;
   clearAllProgress: () => void;
@@ -26,13 +28,24 @@ export const useProgressStore = create<ProgressState>()(
       currentLevelIndex: 0,
       solvedLevelIds: [],
       unlockedComponents: initialUnlocked,
+      levelScores: {},
       circuits: {},
       setCurrentLevelIndex: (index) => set({ currentLevelIndex: index }),
-      markSolved: (levelId, unlocks) =>
-        set((state) => ({
-          solvedLevelIds: unique([...state.solvedLevelIds, levelId]),
-          unlockedComponents: unique([...state.unlockedComponents, ...unlocks]),
-        })),
+      markSolved: (levelId, unlocks, score) =>
+        set((state) => {
+          const levelScores = state.levelScores ?? {};
+          const currentScore = levelScores[levelId];
+          return {
+            solvedLevelIds: unique([...state.solvedLevelIds, levelId]),
+            unlockedComponents: unique([...state.unlockedComponents, ...unlocks]),
+            levelScores: isBetterScore(score, currentScore)
+              ? {
+                  ...levelScores,
+                  [levelId]: score,
+                }
+              : levelScores,
+          };
+        }),
       saveCircuit: (levelId, nodes, edges) =>
         set((state) => ({
           circuits: {
@@ -54,6 +67,7 @@ export const useProgressStore = create<ProgressState>()(
           currentLevelIndex: 0,
           solvedLevelIds: [],
           unlockedComponents: initialUnlocked,
+          levelScores: {},
           circuits: {},
         }),
     }),

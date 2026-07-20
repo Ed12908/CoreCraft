@@ -5,6 +5,7 @@ import type { CircuitEdge, CircuitNode, GateKind } from "./engine/types";
 import { createGateNode, createGivenNode } from "./engine/nodeFactory";
 import { simulateCircuit } from "./engine/simulator";
 import { runLevelTests, type TestRunResult } from "./engine/runLevelTests";
+import { countPlacedComponents, maxPointsForLevel, scoreCircuit } from "./engine/scoring";
 import { useProgressStore } from "./store/progressStore";
 import { CircuitCanvas } from "./components/CircuitCanvas";
 import { LibraryPanel } from "./components/LibraryPanel";
@@ -20,6 +21,7 @@ function App() {
   const setCurrentLevelIndex = useProgressStore((state) => state.setCurrentLevelIndex);
   const solvedLevelIds = useProgressStore((state) => state.solvedLevelIds);
   const unlockedComponents = useProgressStore((state) => state.unlockedComponents);
+  const levelScores = useProgressStore((state) => state.levelScores ?? {});
   const markSolved = useProgressStore((state) => state.markSolved);
   const saveCircuit = useProgressStore((state) => state.saveCircuit);
   const clearCircuit = useProgressStore((state) => state.clearCircuit);
@@ -29,6 +31,7 @@ function App() {
   const currentLevelIndex = Math.min(Math.max(persistedLevelIndex, 0), levels.length - 1);
   const level = levels[currentLevelIndex];
   const solved = solvedLevelIds.includes(level.id);
+  const levelScore = levelScores[level.id];
 
   const initialCircuit = circuits[level.id];
   const [nodes, setNodes, onNodesChange] = useNodesState<CircuitNode>(initialCircuit?.nodes ?? createLevelNodes(currentLevelIndex));
@@ -53,11 +56,27 @@ function App() {
   }, [currentLevelIndex, level.id, level.successMessage, setEdges, setNodes, solved]);
 
   useEffect(() => {
+    for (const solvedLevelId of solvedLevelIds) {
+      const solvedLevel = levels.find((candidate) => candidate.id === solvedLevelId);
+      if (!solvedLevel || levelScores[solvedLevel.id]) continue;
+
+      const saved = circuits[solvedLevel.id];
+      if (!saved) continue;
+
+      const result = runLevelTests(solvedLevel, saved.nodes, saved.edges);
+      if (result.passed) {
+        markSolved(solvedLevel.id, solvedLevel.unlocks, scoreCircuit(solvedLevel, saved.nodes));
+      }
+    }
+  }, [circuits, levelScores, markSolved, solvedLevelIds]);
+
+  useEffect(() => {
     if (circuitLevelId !== level.id) return;
     saveCircuit(level.id, nodes, edges);
   }, [circuitLevelId, edges, level.id, nodes, saveCircuit]);
 
   const simulation = useMemo(() => simulateCircuit(nodes, edges), [nodes, edges]);
+  const currentUsedComponents = useMemo(() => countPlacedComponents(nodes), [nodes]);
 
   const toggleInput = useCallback(
     (nodeId: string) => {
@@ -103,8 +122,13 @@ function App() {
     setTestRun(result);
 
     if (result.passed) {
-      markSolved(level.id, level.unlocks);
-      setStatusMessage(level.successMessage);
+      const score = scoreCircuit(level, nodes);
+      markSolved(level.id, level.unlocks, score);
+      setStatusMessage(
+        score.minimal
+          ? `${level.successMessage} Minimal solution: ${score.points}/${score.maxPoints} points.`
+          : `${level.successMessage} This run scores ${score.points}/${score.maxPoints} points. Use ${score.minimumComponents} or fewer gates for the minimal bonus.`,
+      );
     } else {
       setStatusMessage(`Tests failed: ${result.passedCount}/${result.total} cases passed.`);
     }
@@ -151,6 +175,8 @@ function App() {
   );
 
   const progressPercent = Math.round((solvedLevelIds.length / levels.length) * 100);
+  const totalPoints = Object.values(levelScores).reduce((sum, score) => sum + score.points, 0);
+  const maxPoints = levels.length * maxPointsForLevel();
   const canGoNext = solved && currentLevelIndex < levels.length - 1;
 
   return (
@@ -163,10 +189,13 @@ function App() {
           </div>
           <div className="hidden min-w-56 md:block">
             <progress className="progress progress-primary w-full" max="100" value={progressPercent} />
-            <div className="text-xs opacity-65">{solvedLevelIds.length}/{levels.length} levels solved</div>
+            <div className="text-xs opacity-65">
+              {solvedLevelIds.length}/{levels.length} levels solved · {totalPoints}/{maxPoints} pts
+            </div>
           </div>
         </div>
         <div className="flex-none gap-2">
+          <span className="badge badge-primary">{totalPoints} pts</span>
           <span className="badge badge-outline">Level {currentLevelIndex + 1}</span>
           <button className="btn btn-sm btn-ghost" type="button" onClick={resetEverything}>
             Clear progress
@@ -181,6 +210,7 @@ function App() {
               levels={levels}
               currentIndex={currentLevelIndex}
               solvedLevelIds={solvedLevelIds}
+              levelScores={levelScores}
               onSelect={selectLevel}
             />
             <LibraryPanel
@@ -210,6 +240,8 @@ function App() {
             level={level}
             simulation={simulation}
             testRun={testRun}
+            levelScore={levelScore}
+            currentUsedComponents={currentUsedComponents}
             statusMessage={statusMessage}
             onRunTests={runTests}
             onReset={resetCircuit}

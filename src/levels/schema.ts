@@ -10,6 +10,7 @@ export const levelSchema = z.object({
   chapter: z.string().min(1),
   prompt: z.string().min(1),
   allowedComponents: z.array(gateKindSchema),
+  minimumComponents: z.number().int().nonnegative(),
   givens: z.array(
     z.object({
       id: z.string().min(1),

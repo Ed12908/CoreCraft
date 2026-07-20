@@ -1,13 +1,14 @@
-import type { Level } from "../engine/types";
+import type { Level, LevelScore } from "../engine/types";
 
 type LevelNavigatorProps = {
   levels: Level[];
   currentIndex: number;
   solvedLevelIds: string[];
+  levelScores: Record<string, LevelScore>;
   onSelect: (index: number) => void;
 };
 
-export function LevelNavigator({ levels, currentIndex, solvedLevelIds, onSelect }: LevelNavigatorProps) {
+export function LevelNavigator({ levels, currentIndex, solvedLevelIds, levelScores, onSelect }: LevelNavigatorProps) {
   return (
     <div className="space-y-2">
       <h2 className="text-sm font-semibold uppercase tracking-wide opacity-70">Levels</h2>
@@ -15,6 +16,7 @@ export function LevelNavigator({ levels, currentIndex, solvedLevelIds, onSelect 
         {levels.map((level, index) => {
           const solved = solvedLevelIds.includes(level.id);
           const locked = index > 0 && !solvedLevelIds.includes(levels[index - 1].id);
+          const score = levelScores[level.id];
           return (
             <button
               className={`btn btn-sm w-full justify-start ${index === currentIndex ? "btn-primary" : "btn-ghost"}`}
@@ -25,7 +27,7 @@ export function LevelNavigator({ levels, currentIndex, solvedLevelIds, onSelect 
             >
               <span className="badge badge-xs">{index + 1}</span>
               <span className="truncate">{level.title}</span>
-              {solved && <span className="badge badge-success badge-xs ml-auto">pass</span>}
+              {solved && <span className="badge badge-success badge-xs ml-auto">{score ? `${score.points} pts` : "pass"}</span>}
               {locked && <span className="badge badge-ghost badge-xs ml-auto">lock</span>}
             </button>
           );

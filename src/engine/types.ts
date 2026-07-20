@@ -59,11 +59,21 @@ export type Level = {
   chapter: string;
   prompt: string;
   allowedComponents: GateKind[];
+  minimumComponents: number;
   givens: LevelGiven[];
   tests: LogicCase[];
   unlocks: GateKind[];
   hints: string[];
   successMessage: string;
+};
+
+export type LevelScore = {
+  points: number;
+  maxPoints: number;
+  usedComponents: number;
+  minimumComponents: number;
+  minimal: boolean;
+  awardedAt: string;
 };
 
 export type SavedCircuit = {

@@ -8,6 +8,7 @@ const rawLevels: Level[] = [
     chapter: "Signals",
     prompt: "Connect switch A to lamp OUT. The lamp should copy the switch value.",
     allowedComponents: [],
+    minimumComponents: 0,
     givens: [
       { id: "input-a", kind: "input", label: "A", position: { x: 60, y: 160 } },
       { id: "output-out", kind: "output", label: "OUT", position: { x: 560, y: 160 } },
@@ -26,6 +27,7 @@ const rawLevels: Level[] = [
     chapter: "Gates",
     prompt: "Use a NOT gate so OUT is 1 when A is 0, and 0 when A is 1.",
     allowedComponents: ["not"],
+    minimumComponents: 1,
     givens: [
       { id: "input-a", kind: "input", label: "A", position: { x: 60, y: 160 } },
       { id: "output-out", kind: "output", label: "OUT", position: { x: 640, y: 160 } },
@@ -44,6 +46,7 @@ const rawLevels: Level[] = [
     chapter: "Gates",
     prompt: "Use an AND gate so OUT is 1 only when both A and B are 1.",
     allowedComponents: ["and"],
+    minimumComponents: 1,
     givens: [
       { id: "input-a", kind: "input", label: "A", position: { x: 60, y: 100 } },
       { id: "input-b", kind: "input", label: "B", position: { x: 60, y: 240 } },
@@ -65,6 +68,7 @@ const rawLevels: Level[] = [
     chapter: "Gates",
     prompt: "Use an OR gate so OUT is 1 when A or B is 1.",
     allowedComponents: ["or"],
+    minimumComponents: 1,
     givens: [
       { id: "input-a", kind: "input", label: "A", position: { x: 60, y: 100 } },
       { id: "input-b", kind: "input", label: "B", position: { x: 60, y: 240 } },
@@ -86,6 +90,7 @@ const rawLevels: Level[] = [
     chapter: "Composite Gates",
     prompt: "Build XOR using NOT, AND, and OR. OUT should be 1 only when exactly one input is 1.",
     allowedComponents: ["not", "and", "or"],
+    minimumComponents: 4,
     givens: [
       { id: "input-a", kind: "input", label: "A", position: { x: 60, y: 100 } },
       { id: "input-b", kind: "input", label: "B", position: { x: 60, y: 260 } },
@@ -100,7 +105,7 @@ const rawLevels: Level[] = [
     unlocks: ["xor"],
     hints: [
       "One formula is (A AND NOT B) OR (NOT A AND B).",
-      "You need two NOT gates, two AND gates, and one OR gate.",
+      "In that case, you need two NOT gates, two AND gates, and one OR gate. But maybe there is a better solution.",
     ],
     successMessage: "XOR is working. The XOR component is now available.",
   },
@@ -110,6 +115,7 @@ const rawLevels: Level[] = [
     chapter: "Adders",
     prompt: "Build a half adder. SUM is A XOR B. CARRY is A AND B.",
     allowedComponents: ["xor", "and"],
+    minimumComponents: 2,
     givens: [
       { id: "input-a", kind: "input", label: "A", position: { x: 60, y: 100 } },
       { id: "input-b", kind: "input", label: "B", position: { x: 60, y: 260 } },

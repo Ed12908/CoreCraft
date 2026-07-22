@@ -1,5 +1,5 @@
-import type { GateKind } from "../engine/types";
 import { gateDefinitions } from "../engine/componentRegistry";
+import type { GateKind } from "../engine/types";
 
 type LibraryPanelProps = {
   allowedComponents: GateKind[];
@@ -27,7 +27,8 @@ export function LibraryPanel({ allowedComponents, unlockedComponents, onAddCompo
         {allowedComponents.map((kind) => {
           const definition = gateDefinitions[kind];
           return (
-            <div
+            <fieldset
+              aria-label={`${definition.title} component`}
               className="card cursor-grab border border-base-300 bg-base-100 active:cursor-grabbing"
               draggable
               key={kind}
@@ -48,7 +49,7 @@ export function LibraryPanel({ allowedComponents, unlockedComponents, onAddCompo
                   Add
                 </button>
               </div>
-            </div>
+            </fieldset>
           );
         })}
       </div>

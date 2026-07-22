@@ -27,7 +27,9 @@ export function LevelNavigator({ levels, currentIndex, solvedLevelIds, levelScor
             >
               <span className="badge badge-xs">{index + 1}</span>
               <span className="truncate">{level.title}</span>
-              {solved && <span className="badge badge-success badge-xs ml-auto">{score ? `${score.points} pts` : "pass"}</span>}
+              {solved && (
+                <span className="badge badge-success badge-xs ml-auto">{score ? `${score.points} pts` : "pass"}</span>
+              )}
               {locked && <span className="badge badge-ghost badge-xs ml-auto">lock</span>}
             </button>
           );

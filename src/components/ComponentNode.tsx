@@ -1,7 +1,7 @@
+import { Handle, type NodeProps, Position, useReactFlow } from "@xyflow/react";
 import { memo } from "react";
-import { Handle, Position, useReactFlow, type NodeProps } from "@xyflow/react";
-import type { CircuitEdge, CircuitNode, ComponentKind } from "../engine/types";
 import { getDefinition, handleId } from "../engine/componentRegistry";
+import type { CircuitEdge, CircuitNode, ComponentKind } from "../engine/types";
 import { useCircuitRuntime } from "./CircuitRuntimeContext";
 import { DeleteIcon } from "./DeleteIcon";
 

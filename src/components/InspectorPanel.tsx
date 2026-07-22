@@ -1,7 +1,7 @@
-import { maxPointsForLevel } from "../engine/scoring";
-import type { Bit, Level, LevelScore } from "../engine/types";
-import type { SimulationResult } from "../engine/simulator";
 import type { TestRunResult } from "../engine/runLevelTests";
+import { maxPointsForLevel } from "../engine/scoring";
+import type { SimulationResult } from "../engine/simulator";
+import type { Bit, Level, LevelScore } from "../engine/types";
 
 type InspectorPanelProps = {
   level: Level;
@@ -92,7 +92,10 @@ export function InspectorPanel({
           ) : (
             <div className="space-y-2">
               {visibleIssues.map((issue, index) => (
-                <div className="alert alert-warning py-2 text-xs" key={`${issue.code}-${issue.nodeId ?? issue.edgeId ?? index}`}>
+                <div
+                  className="alert alert-warning py-2 text-xs"
+                  key={`${issue.code}-${issue.nodeId ?? issue.edgeId ?? index}`}
+                >
                   <span>{issue.message}</span>
                 </div>
               ))}

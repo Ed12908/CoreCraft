@@ -1,5 +1,5 @@
-import type { CircuitNode, GateKind, LevelGiven } from "./types";
 import { makeId } from "../utils/id";
+import type { CircuitNode, GateKind, LevelGiven } from "./types";
 
 export function createGivenNode(given: LevelGiven): CircuitNode {
   return {

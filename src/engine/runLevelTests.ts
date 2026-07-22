@@ -1,5 +1,5 @@
-import type { Bit, CircuitEdge, CircuitNode, Level, LogicCase } from "./types";
 import { simulateCircuit } from "./simulator";
+import type { Bit, CircuitEdge, CircuitNode, Level, LogicCase } from "./types";
 
 export type CaseResult = {
   testCase: LogicCase;

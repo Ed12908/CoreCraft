@@ -1,16 +1,16 @@
+import { type EdgeChange, type NodeChange, useEdgesState, useNodesState } from "@xyflow/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useEdgesState, useNodesState, type EdgeChange, type NodeChange } from "@xyflow/react";
-import { levels } from "./levels/levels";
-import type { CircuitEdge, CircuitNode, GateKind } from "./engine/types";
-import { createGateNode, createGivenNode } from "./engine/nodeFactory";
-import { simulateCircuit } from "./engine/simulator";
-import { runLevelTests, type TestRunResult } from "./engine/runLevelTests";
-import { countPlacedComponents, maxPointsForLevel, scoreCircuit } from "./engine/scoring";
-import { useProgressStore } from "./store/progressStore";
 import { CircuitCanvas } from "./components/CircuitCanvas";
-import { LibraryPanel } from "./components/LibraryPanel";
 import { InspectorPanel } from "./components/InspectorPanel";
 import { LevelNavigator } from "./components/LevelNavigator";
+import { LibraryPanel } from "./components/LibraryPanel";
+import { createGateNode, createGivenNode } from "./engine/nodeFactory";
+import { runLevelTests, type TestRunResult } from "./engine/runLevelTests";
+import { countPlacedComponents, maxPointsForLevel, scoreCircuit } from "./engine/scoring";
+import { simulateCircuit } from "./engine/simulator";
+import type { CircuitEdge, CircuitNode, GateKind } from "./engine/types";
+import { levels } from "./levels/levels";
+import { useProgressStore } from "./store/progressStore";
 
 function createLevelNodes(levelIndex: number): CircuitNode[] {
   return levels[levelIndex].givens.map(createGivenNode);
@@ -34,7 +34,9 @@ function App() {
   const levelScore = levelScores[level.id];
 
   const initialCircuit = circuits[level.id];
-  const [nodes, setNodes, onNodesChange] = useNodesState<CircuitNode>(initialCircuit?.nodes ?? createLevelNodes(currentLevelIndex));
+  const [nodes, setNodes, onNodesChange] = useNodesState<CircuitNode>(
+    initialCircuit?.nodes ?? createLevelNodes(currentLevelIndex),
+  );
   const [edges, setEdges, onEdgesChange] = useEdgesState<CircuitEdge>(initialCircuit?.edges ?? []);
   const [circuitLevelId, setCircuitLevelId] = useState(level.id);
   const [testRun, setTestRun] = useState<TestRunResult | null>(null);
@@ -100,10 +102,7 @@ function App() {
     (kind: GateKind) => {
       if (!level.allowedComponents.includes(kind)) return;
       const offset = nodes.filter((node) => node.data.kind === kind).length * 24;
-      setNodes((currentNodes) => [
-        ...currentNodes,
-        createGateNode(kind, { x: 320 + offset, y: 150 + offset }),
-      ]);
+      setNodes((currentNodes) => [...currentNodes, createGateNode(kind, { x: 320 + offset, y: 150 + offset })]);
       setStatusMessage(`${kind.toUpperCase()} gate added.`);
     },
     [level.allowedComponents, nodes, setNodes],

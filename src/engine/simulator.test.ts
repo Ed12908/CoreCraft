@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import type { CircuitEdge, CircuitNode } from "./types";
 import { simulateCircuit } from "./simulator";
+import type { CircuitEdge, CircuitNode } from "./types";
 
 function node(id: string, kind: CircuitNode["data"]["kind"], label = id): CircuitNode {
   return {

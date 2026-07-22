@@ -1,5 +1,5 @@
-import { memo, useCallback, useEffect, useRef, useState, type MouseEvent } from "react";
-import { BaseEdge, EdgeToolbar, getBezierPath, useReactFlow, type EdgeProps } from "@xyflow/react";
+import { BaseEdge, type EdgeProps, EdgeToolbar, getBezierPath, useReactFlow } from "@xyflow/react";
+import { type MouseEvent, memo, useCallback, useEffect, useRef, useState } from "react";
 import type { CircuitEdge, CircuitNode } from "../engine/types";
 import { DeleteIcon } from "./DeleteIcon";
 
@@ -63,6 +63,7 @@ function WireEdgeBase({
   );
 
   return (
+    // biome-ignore lint/a11y/noStaticElementInteractions: Hover reveals the delete affordance; keyboard deletion remains available through React Flow selection.
     <g className="micro-wire-edge" onMouseEnter={showControls} onMouseLeave={hideControls}>
       <BaseEdge
         id={id}

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { countPlacedComponents, LEVEL_SOLVED_POINTS, MINIMAL_SOLUTION_BONUS_POINTS, scoreCircuit } from "./scoring";
 import type { CircuitNode, Level } from "./types";
-import { MINIMAL_SOLUTION_BONUS_POINTS, LEVEL_SOLVED_POINTS, countPlacedComponents, scoreCircuit } from "./scoring";
 
 function node(id: string, kind: CircuitNode["data"]["kind"]): CircuitNode {
   return {

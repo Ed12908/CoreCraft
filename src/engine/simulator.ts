@@ -1,5 +1,5 @@
-import type { Bit, CircuitEdge, CircuitNode } from "./types";
 import { getDefinition, parseHandleId } from "./componentRegistry";
+import type { Bit, CircuitEdge, CircuitNode } from "./types";
 
 export type PortValueMap = Record<string, Record<string, Bit>>;
 
@@ -57,12 +57,7 @@ function createIncomingMap(edges: CircuitEdge[]): IncomingMap {
   return incoming;
 }
 
-function readInputValue(
-  nodeId: string,
-  portId: string,
-  incoming: IncomingMap,
-  outputs: OutputMap,
-): Bit | undefined {
+function readInputValue(nodeId: string, portId: string, incoming: IncomingMap, outputs: OutputMap): Bit | undefined {
   const edges = incoming.get(inputKey(nodeId, portId)) ?? [];
   if (edges.length !== 1) return undefined;
   return getSourceValue(edges[0], outputs);
@@ -213,9 +208,7 @@ export function simulateCircuit(
     }
   }
 
-  const edgeValues = Object.fromEntries(
-    edges.map((edge) => [edge.id, getSourceValue(edge, outputs)]),
-  );
+  const edgeValues = Object.fromEntries(edges.map((edge) => [edge.id, getSourceValue(edge, outputs)]));
 
   const outputsByLabel: Record<string, Bit | undefined> = {};
   for (const node of nodes) {

@@ -94,9 +94,7 @@ body {
 }
 
 .micro-flow-grid {
-  background:
-    radial-gradient(circle at 1px 1px, rgb(148 163 184 / 0.24) 1px, transparent 0),
-    var(--color-base-200);
+  background: radial-gradient(circle at 1px 1px, rgb(148 163 184 / 0.24) 1px, transparent 0), var(--color-base-200);
   background-size: 24px 24px;
 }
 .react-flow__edge.signal-high .react-flow__edge-path {

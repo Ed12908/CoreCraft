@@ -1,22 +1,22 @@
-import { useCallback, useMemo } from "react";
 import {
   addEdge,
   Background,
+  type Connection,
   Controls,
+  type EdgeChange,
   MiniMap,
+  type NodeChange,
   ReactFlow,
   useReactFlow,
-  type Connection,
-  type EdgeChange,
-  type NodeChange,
 } from "@xyflow/react";
-import type { CircuitEdge, CircuitNode, GateKind } from "../engine/types";
+import { useCallback, useMemo } from "react";
 import { parseHandleId } from "../engine/componentRegistry";
 import { createGateNode } from "../engine/nodeFactory";
 import type { SimulationResult } from "../engine/simulator";
+import type { CircuitEdge, CircuitNode, GateKind } from "../engine/types";
 import { makeId } from "../utils/id";
-import { ComponentNode } from "./ComponentNode";
 import { CircuitRuntimeContext } from "./CircuitRuntimeContext";
+import { ComponentNode } from "./ComponentNode";
 import { WireEdge } from "./WireEdge";
 
 const nodeTypes = {

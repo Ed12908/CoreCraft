@@ -1,4 +1,5 @@
 import type { Level, LevelScore } from "../engine/types";
+import { UiIcon } from "./UiIcons";
 
 type LevelNavigatorProps = {
   levels: Level[];
@@ -8,33 +9,39 @@ type LevelNavigatorProps = {
   onSelect: (index: number) => void;
 };
 
+const levelIcons = ["switch", "wave", "circuit", "or", "xor", "sigma"] as const;
+
 export function LevelNavigator({ levels, currentIndex, solvedLevelIds, levelScores, onSelect }: LevelNavigatorProps) {
   return (
-    <div className="space-y-2">
-      <h2 className="text-sm font-semibold uppercase tracking-wide opacity-70">Levels</h2>
-      <div className="space-y-1">
+    <section className="cyber-panel rail-panel">
+      <div className="rail-heading">Mission Log</div>
+      <div className="mission-list">
         {levels.map((level, index) => {
           const solved = solvedLevelIds.includes(level.id);
           const locked = index > 0 && !solvedLevelIds.includes(levels[index - 1].id);
           const score = levelScores[level.id];
           return (
             <button
-              className={`btn btn-sm w-full justify-start ${index === currentIndex ? "btn-primary" : "btn-ghost"}`}
+              className={`mission-row ${index === currentIndex ? "is-active" : ""}`}
               disabled={locked}
               key={level.id}
               onClick={() => onSelect(index)}
               type="button"
             >
-              <span className="badge badge-xs">{index + 1}</span>
-              <span className="truncate">{level.title}</span>
+              <span className="mission-index">{index + 1}</span>
+              <UiIcon className="mission-icon" name={levelIcons[index] ?? "circuit"} />
+              <span className="mission-title">{level.title}</span>
               {solved && (
-                <span className="badge badge-success badge-xs ml-auto">{score ? `${score.points} pts` : "pass"}</span>
+                <>
+                  <span className="mission-score">+{score ? score.points : 100} pts</span>
+                  <UiIcon className="mission-check" name="check" />
+                </>
               )}
-              {locked && <span className="badge badge-ghost badge-xs ml-auto">lock</span>}
+              {locked && <UiIcon className="mission-lock" name="lock" />}
             </button>
           );
         })}
       </div>
-    </div>
+    </section>
   );
 }

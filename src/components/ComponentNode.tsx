@@ -4,6 +4,7 @@ import { getDefinition, handleId } from "../engine/componentRegistry";
 import type { CircuitEdge, CircuitNode, ComponentKind } from "../engine/types";
 import { useCircuitRuntime } from "./CircuitRuntimeContext";
 import { DeleteIcon } from "./DeleteIcon";
+import { UiIcon } from "./UiIcons";
 
 function portTop(index: number, count: number): string {
   if (count === 1) return "50%";
@@ -12,15 +13,15 @@ function portTop(index: number, count: number): string {
 }
 
 function kindBadge(kind: ComponentKind): string {
-  if (kind === "input") return "badge-info";
-  if (kind === "output") return "badge-warning";
-  return "badge-primary";
+  if (kind === "input") return "node-badge-info";
+  if (kind === "output") return "node-badge-warning";
+  return "node-badge-primary";
 }
 
 function valueClass(value: 0 | 1 | undefined): string {
-  if (value === 1) return "badge-success";
-  if (value === 0) return "badge-neutral";
-  return "badge-ghost";
+  if (value === 1) return "is-high";
+  if (value === 0) return "is-low";
+  return "is-unknown";
 }
 
 function formatValue(value: 0 | 1 | undefined): string {
@@ -35,7 +36,7 @@ function ComponentNodeBase({ id, data, selected, deletable }: NodeProps<CircuitN
   const inputValue = simulation.nodeInputs[id]?.in;
 
   return (
-    <div className="micro-node card border border-base-300 bg-base-100" data-selected={selected ? "true" : "false"}>
+    <div className={`micro-node micro-node-${data.kind}`} data-selected={selected ? "true" : "false"}>
       {deletable && (
         <button
           aria-label={`Delete ${data.label}`}
@@ -72,20 +73,20 @@ function ComponentNodeBase({ id, data, selected, deletable }: NodeProps<CircuitN
         />
       ))}
 
-      <div className="card-body gap-2 p-3">
-        <div className="flex items-start justify-between gap-2">
+      <div className="micro-node-body">
+        <div className="micro-node-header">
           <div>
-            <div className="text-sm font-semibold leading-tight">{data.label}</div>
-            <div className="text-xs opacity-65">{definition.title}</div>
+            <div className="micro-node-title">{data.label}</div>
+            <div className="micro-node-subtitle">{definition.title}</div>
           </div>
-          <span className={`badge badge-sm ${kindBadge(data.kind)}`}>{definition.shortTitle}</span>
+          <span className={`micro-node-badge ${kindBadge(data.kind)}`}>{definition.shortTitle}</span>
         </div>
 
         {data.kind === "input" && (
-          <div className="flex items-center justify-between rounded-box bg-base-200 px-2 py-1">
-            <span className="text-xs opacity-75">value</span>
+          <div className="node-value-row">
+            <span>value</span>
             <button
-              className={`btn btn-xs ${outputValue === 1 ? "btn-success" : "btn-outline"}`}
+              className={`node-value-button ${valueClass(outputValue)}`}
               onClick={(event) => {
                 event.stopPropagation();
                 toggleInput(id);
@@ -98,29 +99,29 @@ function ComponentNodeBase({ id, data, selected, deletable }: NodeProps<CircuitN
         )}
 
         {data.kind === "output" && (
-          <div className="flex items-center justify-between rounded-box bg-base-200 px-2 py-1">
-            <span className="text-xs opacity-75">signal</span>
-            <span className={`badge ${valueClass(inputValue)}`}>{formatValue(inputValue)}</span>
+          <div className="node-value-row">
+            <span>signal</span>
+            <span className={`node-value-pill ${valueClass(inputValue)}`}>{formatValue(inputValue)}</span>
           </div>
         )}
 
         {data.kind !== "input" && data.kind !== "output" && (
-          <div className="grid grid-cols-2 gap-2 rounded-box bg-base-200 p-2">
-            <div className="space-y-1">
+          <div className="micro-port-grid">
+            <div className="micro-port-column">
               {definition.inputs.map((port) => (
-                <div className="micro-port-label flex justify-between gap-2" key={port.id}>
+                <div className="micro-port-label" key={port.id}>
                   <span>{port.label}</span>
-                  <span className={`badge badge-xs ${valueClass(simulation.nodeInputs[id]?.[port.id])}`}>
+                  <span className={`node-value-pill ${valueClass(simulation.nodeInputs[id]?.[port.id])}`}>
                     {formatValue(simulation.nodeInputs[id]?.[port.id])}
                   </span>
                 </div>
               ))}
             </div>
-            <div className="space-y-1">
+            <div className="micro-port-column">
               {definition.outputs.map((port) => (
-                <div className="micro-port-label flex justify-between gap-2" key={port.id}>
+                <div className="micro-port-label" key={port.id}>
                   <span>{port.label}</span>
-                  <span className={`badge badge-xs ${valueClass(simulation.nodeOutputs[id]?.[port.id])}`}>
+                  <span className={`node-value-pill ${valueClass(simulation.nodeOutputs[id]?.[port.id])}`}>
                     {formatValue(simulation.nodeOutputs[id]?.[port.id])}
                   </span>
                 </div>
@@ -128,6 +129,8 @@ function ComponentNodeBase({ id, data, selected, deletable }: NodeProps<CircuitN
             </div>
           </div>
         )}
+        {data.kind === "input" && <UiIcon name="switch" className="node-watermark" />}
+        {data.kind === "output" && <UiIcon name="lamp" className="node-watermark" />}
       </div>
     </div>
   );

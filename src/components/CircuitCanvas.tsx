@@ -123,7 +123,7 @@ export function CircuitCanvas({
 
   return (
     <CircuitRuntimeContext.Provider value={{ simulation, toggleInput }}>
-      <div className="h-full overflow-hidden rounded-box border border-base-300 bg-base-200">
+      <div className="circuit-flow">
         <ReactFlow<CircuitNode, CircuitEdge>
           nodes={nodes}
           edges={displayEdges}
@@ -141,9 +141,18 @@ export function CircuitCanvas({
           snapGrid={[12, 12]}
           className="micro-flow-grid"
         >
-          <Background gap={24} size={1} />
-          <Controls position="bottom-left" />
-          <MiniMap pannable zoomable position="bottom-right" />
+          <Background color="#184f84" gap={28} size={1.2} />
+          <Controls className="flow-controls" position="bottom-left" />
+          <MiniMap
+            className="flow-minimap"
+            maskColor="rgba(1, 10, 28, 0.68)"
+            nodeColor="#172641"
+            nodeStrokeColor="#35d9ff"
+            nodeStrokeWidth={1.5}
+            pannable
+            position="bottom-right"
+            zoomable
+          />
         </ReactFlow>
       </div>
     </CircuitRuntimeContext.Provider>

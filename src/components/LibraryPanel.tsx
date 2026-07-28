@@ -1,5 +1,6 @@
 import { gateDefinitions } from "../engine/componentRegistry";
 import type { GateKind } from "../engine/types";
+import { UiIcon } from "./UiIcons";
 
 type LibraryPanelProps = {
   allowedComponents: GateKind[];
@@ -11,16 +12,16 @@ const allGateKinds: GateKind[] = ["not", "and", "or", "xor"];
 
 export function LibraryPanel({ allowedComponents, unlockedComponents, onAddComponent }: LibraryPanelProps) {
   return (
-    <div className="space-y-4">
+    <section className="cyber-panel rail-panel component-library">
       <div>
-        <h2 className="text-sm font-semibold uppercase tracking-wide opacity-70">Component library</h2>
-        <p className="mt-1 text-xs opacity-65">Drag a part onto the canvas, or use Add.</p>
+        <div className="rail-heading">Component Library</div>
+        <p className="rail-subtitle">Drag a component onto the canvas</p>
       </div>
 
-      <div className="space-y-2">
+      <div className="component-list">
         {allowedComponents.length === 0 && (
-          <div className="alert py-2 text-sm">
-            <span>This level only needs a wire.</span>
+          <div className="system-note">
+            <span>This level only needs a wire</span>
           </div>
         )}
 
@@ -29,7 +30,7 @@ export function LibraryPanel({ allowedComponents, unlockedComponents, onAddCompo
           return (
             <fieldset
               aria-label={`${definition.title} component`}
-              className="card cursor-grab border border-base-300 bg-base-100 active:cursor-grabbing"
+              className={`component-card component-${kind}`}
               draggable
               key={kind}
               onDragStart={(event) => {
@@ -37,36 +38,41 @@ export function LibraryPanel({ allowedComponents, unlockedComponents, onAddCompo
                 event.dataTransfer.effectAllowed = "move";
               }}
             >
-              <div className="card-body gap-2 p-3">
-                <div className="flex items-center justify-between gap-2">
-                  <div>
-                    <div className="font-semibold">{definition.title}</div>
-                    <div className="text-xs opacity-65">{definition.description}</div>
-                  </div>
-                  <span className="badge badge-primary">{definition.shortTitle}</span>
+              <div className="component-card-main">
+                <UiIcon className="component-icon" name={kind} />
+                <div className="component-copy">
+                  <div className="component-title">{definition.title}</div>
+                  <div className="component-desc">{definition.description}</div>
                 </div>
-                <button className="btn btn-sm btn-outline" type="button" onClick={() => onAddComponent(kind)}>
-                  Add
-                </button>
+                <div className="component-meta">
+                  <span className="component-chip">{definition.shortTitle}</span>
+                  <span className="component-port-count">
+                    <span />
+                    {definition.inputs.length}
+                  </span>
+                </div>
               </div>
+              <button className="component-add-button" type="button" onClick={() => onAddComponent(kind)}>
+                Drag to add
+              </button>
             </fieldset>
           );
         })}
       </div>
 
-      <div>
-        <h3 className="text-xs font-semibold uppercase tracking-wide opacity-70">Unlocked so far</h3>
-        <div className="mt-2 flex flex-wrap gap-2">
+      <div className="unlocked-strip">
+        <h3>Unlocked so far</h3>
+        <div className="unlock-list">
           {allGateKinds.map((kind) => {
             const unlocked = unlockedComponents.includes(kind) || allowedComponents.includes(kind);
             return (
-              <span className={`badge ${unlocked ? "badge-success" : "badge-ghost"}`} key={kind}>
+              <span className={`unlock-badge ${unlocked ? "is-unlocked" : ""}`} key={kind}>
                 {gateDefinitions[kind].shortTitle}
               </span>
             );
           })}
         </div>
       </div>
-    </div>
+    </section>
   );
 }

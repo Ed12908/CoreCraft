@@ -4,6 +4,7 @@ import { CircuitCanvas } from "./components/CircuitCanvas";
 import { InspectorPanel } from "./components/InspectorPanel";
 import { LevelNavigator } from "./components/LevelNavigator";
 import { LibraryPanel } from "./components/LibraryPanel";
+import { UiIcon } from "./components/UiIcons";
 import { createGateNode, createGivenNode } from "./engine/nodeFactory";
 import { runLevelTests, type TestRunResult } from "./engine/runLevelTests";
 import { countPlacedComponents, maxPointsForLevel, scoreCircuit } from "./engine/scoring";
@@ -179,48 +180,68 @@ function App() {
   const canGoNext = solved && currentLevelIndex < levels.length - 1;
 
   return (
-    <div className="flex h-screen flex-col bg-base-300 text-base-content">
-      <header className="navbar border-b border-base-300 bg-base-100 px-4">
-        <div className="flex-1 gap-3">
+    <div className="app-shell">
+      <header className="top-hud">
+        <section className="hud-card brand-card" aria-label="Application">
+          <div className="brand-chip">
+            <UiIcon name="chip" />
+          </div>
           <div>
-            <div className="text-lg font-bold">MicroCPU Builder</div>
-            <div className="text-xs opacity-65">Logic gates to a 4-bit processor</div>
+            <h1>MicroCPU Builder</h1>
+            <p>Logic gates to a 4-bit processor</p>
           </div>
-          <div className="hidden min-w-56 md:block">
-            <progress className="progress progress-primary w-full" max="100" value={progressPercent} />
-            <div className="text-xs opacity-65">
-              {solvedLevelIds.length}/{levels.length} levels solved · {totalPoints}/{maxPoints} pts
-            </div>
+        </section>
+
+        <section className="hud-card progress-card" aria-label="Level progress">
+          <div className="hud-label">Level Progress</div>
+          <div className="progress-track" aria-hidden="true">
+            <div className="progress-fill" style={{ width: `${progressPercent}%` }} />
           </div>
-        </div>
-        <div className="flex-none gap-2">
-          <span className="badge badge-primary">{totalPoints} pts</span>
-          <span className="badge badge-outline">Level {currentLevelIndex + 1}</span>
-          <button className="btn btn-sm btn-ghost" type="button" onClick={resetEverything}>
+          <div className="progress-readout">
+            <span>
+              {solvedLevelIds.length} / {levels.length} levels solved
+            </span>
+            <span>
+              {totalPoints} / {maxPoints} pts
+            </span>
+          </div>
+        </section>
+
+        <section className="hud-card score-card" aria-label="Score and actions">
+          <div className="score-pill">
+            <UiIcon name="xp" />
+            <strong>{totalPoints}</strong>
+            <span>pts</span>
+          </div>
+          <div className="level-chip">
+            <span>Level</span>
+            <strong>{currentLevelIndex + 1}</strong>
+          </div>
+          <button className="cyber-button ghost small" type="button" onClick={resetEverything}>
+            <UiIcon name="refresh" />
             Clear progress
           </button>
-        </div>
+        </section>
       </header>
 
-      <main className="grid min-h-0 flex-1 grid-cols-[300px_minmax(0,1fr)_420px] gap-3 p-3">
-        <aside className="min-h-0 overflow-y-auto rounded-box border border-base-300 bg-base-100 p-4">
-          <div className="space-y-6">
-            <LevelNavigator
-              levels={levels}
-              currentIndex={currentLevelIndex}
-              solvedLevelIds={solvedLevelIds}
-              levelScores={levelScores}
-              onSelect={selectLevel}
-            />
-            <LibraryPanel
-              allowedComponents={level.allowedComponents}
-              unlockedComponents={unlockedComponents}
-              onAddComponent={addComponent}
-            />
-          </div>
+      <main className="workbench">
+        <aside className="left-rail">
+          <LevelNavigator
+            levels={levels}
+            currentIndex={currentLevelIndex}
+            solvedLevelIds={solvedLevelIds}
+            levelScores={levelScores}
+            onSelect={selectLevel}
+          />
+          <LibraryPanel
+            allowedComponents={level.allowedComponents}
+            unlockedComponents={unlockedComponents}
+            onAddComponent={addComponent}
+          />
         </aside>
 
-        <section className="min-h-0">
+        <section className="canvas-panel cyber-panel">
+          <div className="panel-tab">Circuit Canvas</div>
           <CircuitCanvas
             nodes={nodes}
             edges={edges}
@@ -234,7 +255,7 @@ function App() {
           />
         </section>
 
-        <aside className="min-h-0 rounded-box border border-base-300 bg-base-200 p-3">
+        <aside className="right-rail">
           <InspectorPanel
             level={level}
             simulation={simulation}

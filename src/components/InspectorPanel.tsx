@@ -2,6 +2,7 @@ import type { TestRunResult } from "../engine/runLevelTests";
 import { maxPointsForLevel } from "../engine/scoring";
 import type { SimulationResult } from "../engine/simulator";
 import type { Bit, Level, LevelScore } from "../engine/types";
+import { UiIcon } from "./UiIcons";
 
 type InspectorPanelProps = {
   level: Level;
@@ -41,147 +42,146 @@ export function InspectorPanel({
   const bestPoints = levelScore ? `${levelScore.points}/${levelScore.maxPoints}` : `0/${maxPointsForLevel()}`;
 
   return (
-    <div className="flex h-full flex-col gap-4 overflow-y-auto pr-1">
-      <div className="card border border-base-300 bg-base-100">
-        <div className="card-body gap-3 p-4">
-          <div>
-            <div className="badge badge-outline">{level.chapter}</div>
-            <h1 className="mt-2 text-xl font-bold">{level.title}</h1>
-            <p className="mt-2 text-sm opacity-80">{level.prompt}</p>
+    <div className="inspector-stack">
+      <section className="cyber-panel challenge-panel">
+        <div className="rail-heading">Current Challenge</div>
+        <span className="chapter-chip">{level.chapter}</span>
+        <h2>{level.title}</h2>
+        <p className="challenge-prompt">{level.prompt}</p>
+
+        <div className="score-grid">
+          <div className="score-box">
+            <span>Best score</span>
+            <strong>{bestPoints} pts</strong>
           </div>
-
-          <div className="grid grid-cols-2 gap-2">
-            <div className="rounded-box bg-base-200 px-3 py-2">
-              <div className="text-xs font-semibold uppercase tracking-wide opacity-60">Best</div>
-              <div className="text-lg font-bold">{bestPoints} pts</div>
-            </div>
-            <div className="rounded-box bg-base-200 px-3 py-2">
-              <div className="text-xs font-semibold uppercase tracking-wide opacity-60">Gates</div>
-              <div className={`text-lg font-bold ${currentMinimal ? "text-success" : "text-warning"}`}>
-                {currentUsedComponents}/{level.minimumComponents}
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-2">
-            <button className="btn btn-primary" type="button" onClick={onRunTests}>
-              Run tests
-            </button>
-            <button className="btn btn-outline" type="button" onClick={onReset}>
-              Reset
-            </button>
-          </div>
-
-          <button className="btn btn-success" disabled={!canGoNext} type="button" onClick={onNext}>
-            Next level
-          </button>
-
-          <div className={`alert py-2 text-sm ${solved ? "alert-success" : ""}`}>
-            <span>{statusMessage}</span>
+          <div className="score-box">
+            <span>Gates used</span>
+            <strong className={currentMinimal ? "is-optimal" : "is-over"}>
+              {currentUsedComponents} / {level.minimumComponents}
+            </strong>
           </div>
         </div>
-      </div>
 
-      <div className="card border border-base-300 bg-base-100">
-        <div className="card-body gap-3 p-4">
-          <h2 className="text-sm font-semibold uppercase tracking-wide opacity-70">Live signals</h2>
-          {visibleIssues.length === 0 ? (
-            <div className="alert alert-success py-2 text-sm">
-              <span>The current circuit has settled.</span>
-            </div>
-          ) : (
-            <div className="space-y-2">
-              {visibleIssues.map((issue, index) => (
-                <div
-                  className="alert alert-warning py-2 text-xs"
-                  key={`${issue.code}-${issue.nodeId ?? issue.edgeId ?? index}`}
-                >
-                  <span>{issue.message}</span>
+        <div className="challenge-actions">
+          <button className="cyber-button primary" type="button" onClick={onRunTests}>
+            <UiIcon name="play" />
+            Run tests
+          </button>
+          <button className="cyber-button secondary" type="button" onClick={onReset}>
+            <UiIcon name="reset" />
+            Reset
+          </button>
+        </div>
+
+        <button className="cyber-button success wide" disabled={!canGoNext} type="button" onClick={onNext}>
+          Next level
+          <UiIcon name="arrow" />
+        </button>
+
+        <div className={`status-card ${solved ? "is-success" : ""}`}>
+          <UiIcon name={solved ? "check" : "wave"} />
+          <span>{statusMessage}</span>
+        </div>
+      </section>
+
+      <section className="cyber-panel signal-panel">
+        <div className="panel-title-line">
+          <UiIcon name="wave" />
+          <span>Live Signals</span>
+        </div>
+        {visibleIssues.length === 0 ? (
+          <div className="signal-status is-settled">
+            <span className="signal-dot" />
+            <span>The current circuit has settled.</span>
+            <UiIcon name="wave" />
+          </div>
+        ) : (
+          <div className="issue-stack">
+            {visibleIssues.map((issue, index) => (
+              <div className="signal-status is-warning" key={`${issue.code}-${issue.nodeId ?? issue.edgeId ?? index}`}>
+                <span>{issue.message}</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
+      <section className="cyber-panel tests-panel">
+        <div className="panel-title-line">
+          <span>Truth Table Tests</span>
+          {testRun && (
+            <span className={`test-count ${testRun.passed ? "is-pass" : "is-fail"}`}>
+              {testRun.passedCount}/{testRun.total}
+            </span>
+          )}
+        </div>
+
+        <div className="truth-table-wrap">
+          <table className="truth-table">
+            <thead>
+              <tr>
+                <th>Case</th>
+                <th>Input</th>
+                <th>Expected</th>
+                <th>Actual</th>
+                <th>Result</th>
+              </tr>
+            </thead>
+            <tbody>
+              {level.tests.map((testCase) => {
+                const result = testRun?.cases.find((caseResult) => caseResult.testCase.name === testCase.name);
+                return (
+                  <tr key={testCase.name}>
+                    <td>{testCase.name}</td>
+                    <td>{renderBits(testCase.inputs)}</td>
+                    <td>{renderBits(testCase.outputs)}</td>
+                    <td>
+                      {result
+                        ? Object.entries(result.actual)
+                            .map(([key, value]) => `${key}=${value ?? "?"}`)
+                            .join("  ")
+                        : "-"}
+                    </td>
+                    <td>
+                      <span className={`test-result ${result ? (result.passed ? "is-pass" : "is-fail") : ""}`}>
+                        {result ? (result.passed ? "Pass" : "Fail") : "Not Run"}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+
+        {testRun && !testRun.passed && (
+          <div className="issue-stack">
+            {testRun.cases
+              .filter((caseResult) => !caseResult.passed)
+              .slice(0, 3)
+              .map((caseResult) => (
+                <div className="signal-status is-error" key={caseResult.testCase.name}>
+                  {caseResult.testCase.name}: {caseResult.messages.join(" ")}
                 </div>
               ))}
-            </div>
-          )}
-        </div>
-      </div>
-
-      <div className="card border border-base-300 bg-base-100">
-        <div className="card-body gap-3 p-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-sm font-semibold uppercase tracking-wide opacity-70">Truth table tests</h2>
-            {testRun && (
-              <span className={`badge ${testRun.passed ? "badge-success" : "badge-warning"}`}>
-                {testRun.passedCount}/{testRun.total}
-              </span>
-            )}
           </div>
+        )}
+      </section>
 
-          <div className="overflow-x-auto">
-            <table className="table table-xs">
-              <thead>
-                <tr>
-                  <th>Case</th>
-                  <th>Input</th>
-                  <th>Expected</th>
-                  <th>Actual</th>
-                </tr>
-              </thead>
-              <tbody>
-                {level.tests.map((testCase) => {
-                  const result = testRun?.cases.find((caseResult) => caseResult.testCase.name === testCase.name);
-                  return (
-                    <tr key={testCase.name}>
-                      <td>
-                        <div className="flex items-center gap-1">
-                          {result && (
-                            <span className={`badge badge-xs ${result.passed ? "badge-success" : "badge-error"}`}>
-                              {result.passed ? "ok" : "fail"}
-                            </span>
-                          )}
-                          {testCase.name}
-                        </div>
-                      </td>
-                      <td className="whitespace-pre">{renderBits(testCase.inputs)}</td>
-                      <td className="whitespace-pre">{renderBits(testCase.outputs)}</td>
-                      <td className="whitespace-pre">
-                        {result
-                          ? Object.entries(result.actual)
-                              .map(([key, value]) => `${key}=${value ?? "?"}`)
-                              .join("  ")
-                          : "not run"}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-
-          {testRun && !testRun.passed && (
-            <div className="space-y-2">
-              {testRun.cases
-                .filter((caseResult) => !caseResult.passed)
-                .slice(0, 3)
-                .map((caseResult) => (
-                  <div className="alert alert-error py-2 text-xs" key={caseResult.testCase.name}>
-                    <span>
-                      {caseResult.testCase.name}: {caseResult.messages.join(" ")}
-                    </span>
-                  </div>
-                ))}
-            </div>
-          )}
-        </div>
-      </div>
-
-      <div className="collapse collapse-arrow border border-base-300 bg-base-100">
-        <input type="checkbox" />
-        <div className="collapse-title text-sm font-semibold uppercase tracking-wide opacity-70">Hints</div>
-        <div className="collapse-content space-y-2 text-sm opacity-80">
+      <details className="cyber-panel hints-panel">
+        <summary>
+          <span>
+            <UiIcon name="spark" />
+            Hints
+          </span>
+          <span className="summary-chevron">v</span>
+        </summary>
+        <div className="hint-list">
           {level.hints.map((hint) => (
             <p key={hint}>{hint}</p>
           ))}
         </div>
-      </div>
+      </details>
     </div>
   );
 }

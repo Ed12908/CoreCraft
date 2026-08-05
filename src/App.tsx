@@ -4,7 +4,7 @@ import { CircuitCanvas } from "./components/CircuitCanvas";
 import { InspectorPanel } from "./components/InspectorPanel";
 import { LevelNavigator } from "./components/LevelNavigator";
 import { LibraryPanel } from "./components/LibraryPanel";
-import { UiIcon } from "./components/UiIcons";
+import { TopHud } from "./components/TopHud";
 import { createGateNode, createGivenNode } from "./engine/nodeFactory";
 import { runLevelTests, type TestRunResult } from "./engine/runLevelTests";
 import { countPlacedComponents, maxPointsForLevel, scoreCircuit } from "./engine/scoring";
@@ -181,48 +181,15 @@ function App() {
 
   return (
     <div className="app-shell">
-      <header className="top-hud">
-        <section className="hud-card brand-card" aria-label="Application">
-          <div className="brand-chip">
-            <UiIcon name="chip" />
-          </div>
-          <div>
-            <h1>MicroCPU Builder</h1>
-            <p>Logic gates to a 4-bit processor</p>
-          </div>
-        </section>
-
-        <section className="hud-card progress-card" aria-label="Level progress">
-          <div className="hud-label">Level Progress</div>
-          <div className="progress-track" aria-hidden="true">
-            <div className="progress-fill" style={{ width: `${progressPercent}%` }} />
-          </div>
-          <div className="progress-readout">
-            <span>
-              {solvedLevelIds.length} / {levels.length} levels solved
-            </span>
-            <span>
-              {totalPoints} / {maxPoints} pts
-            </span>
-          </div>
-        </section>
-
-        <section className="hud-card score-card" aria-label="Score and actions">
-          <div className="score-pill">
-            <UiIcon name="xp" />
-            <strong>{totalPoints}</strong>
-            <span>pts</span>
-          </div>
-          <div className="level-chip">
-            <span>Level</span>
-            <strong>{currentLevelIndex + 1}</strong>
-          </div>
-          <button className="cyber-button ghost small" type="button" onClick={resetEverything}>
-            <UiIcon name="refresh" />
-            Clear progress
-          </button>
-        </section>
-      </header>
+      <TopHud
+        currentLevel={currentLevelIndex + 1}
+        levelCount={levels.length}
+        maxPoints={maxPoints}
+        progressPercent={progressPercent}
+        solvedCount={solvedLevelIds.length}
+        totalPoints={totalPoints}
+        onClearProgress={resetEverything}
+      />
 
       <main className="workbench">
         <aside className="left-rail">

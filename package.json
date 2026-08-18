@@ -12,6 +12,7 @@
     "format": "biome format --write .",
     "format:check": "biome format .",
     "lint": "biome lint .",
+    "screenshot": "bun scripts/capture-ui.ts",
     "test": "vitest run",
     "test:watch": "vitest"
   },

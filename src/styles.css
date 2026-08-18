@@ -86,19 +86,20 @@ button {
 .top-hud {
   position: relative;
   display: grid;
-  grid-template-columns: minmax(330px, 0.9fr) minmax(470px, 1.25fr) minmax(420px, 1fr);
+  grid-template-columns: 390px minmax(520px, 1fr) 470px;
   gap: 0;
   min-height: 0;
   overflow: hidden;
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background:
-    linear-gradient(180deg, rgb(26 42 86 / 0.68), rgb(3 8 23 / 0.96)),
-    linear-gradient(90deg, rgb(38 217 255 / 0.1), transparent 34%, rgb(155 92 255 / 0.1));
+    linear-gradient(180deg, #0d1737, #030817),
+    linear-gradient(90deg, rgb(38 217 255 / 0.035), transparent 42%, rgb(155 92 255 / 0.04));
   box-shadow:
     inset 0 0 0 1px rgb(255 255 255 / 0.04),
     inset 0 0 34px rgb(22 114 255 / 0.12),
     0 0 24px rgb(38 217 255 / 0.08);
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
 }
 
 .cyber-panel {
@@ -106,12 +107,13 @@ button {
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background:
-    linear-gradient(180deg, rgb(20 38 82 / 0.52), rgb(3 9 25 / 0.94)),
-    linear-gradient(90deg, rgb(38 217 255 / 0.08), rgb(155 92 255 / 0.08));
+    linear-gradient(180deg, #071129, #020817),
+    linear-gradient(90deg, rgb(38 217 255 / 0.02), transparent 45%, rgb(155 92 255 / 0.022));
   box-shadow:
     inset 0 0 0 1px rgb(255 255 255 / 0.04),
     inset 0 0 32px rgb(22 114 255 / 0.1),
     0 0 22px rgb(38 217 255 / 0.08);
+  clip-path: polygon(0 0, calc(100% - 9px) 0, 100% 9px, 100% 100%, 9px 100%, 0 calc(100% - 9px));
 }
 
 .top-hud::before,
@@ -122,7 +124,11 @@ button {
   border-radius: inherit;
   background: linear-gradient(90deg, var(--cyan), transparent 32%, var(--violet));
   content: "";
-  opacity: 0.45;
+  opacity: 0.3;
+}
+
+.cyber-panel::before {
+  display: none;
 }
 
 .top-hud::after {
@@ -130,8 +136,9 @@ button {
   inset: 0;
   pointer-events: none;
   background:
-    linear-gradient(90deg, transparent 0 21%, rgb(38 217 255 / 0.08) 21% 21.08%, transparent 21.08% 68%),
-    linear-gradient(90deg, transparent 0 68%, rgb(155 92 255 / 0.1) 68% 68.08%, transparent 68.08%);
+    linear-gradient(90deg, transparent 0 21%, rgb(38 217 255 / 0.1) 21% 21.08%, transparent 21.08% 68%),
+    linear-gradient(90deg, transparent 0 68%, rgb(155 92 255 / 0.1) 68% 68.08%, transparent 68.08%),
+    linear-gradient(180deg, rgb(115 155 255 / 0.07), transparent 42%, rgb(38 217 255 / 0.025));
   content: "";
 }
 
@@ -153,7 +160,7 @@ button {
   height: 100%;
   border-left: 1px solid rgb(38 217 255 / 0.18);
   border-right: 1px solid rgb(155 92 255 / 0.1);
-  background: linear-gradient(115deg, transparent 0 32%, rgb(7 17 42 / 0.86) 32% 68%, transparent 68%);
+  background: linear-gradient(115deg, transparent 0 32%, rgb(5 13 34 / 0.92) 32% 68%, transparent 68%);
   content: "";
   pointer-events: none;
 }
@@ -161,27 +168,30 @@ button {
 .brand-section {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 14px 26px;
+  gap: 18px;
+  padding: 13px 28px;
 }
 
 .brand-chip {
   display: grid;
   place-items: center;
-  width: 58px;
-  height: 58px;
+  width: 62px;
+  height: 62px;
   border: 1px solid var(--cyan);
   border-radius: 8px;
-  background: linear-gradient(180deg, rgb(38 217 255 / 0.2), rgb(155 92 255 / 0.06)), var(--panel-strong);
+  background:
+    linear-gradient(180deg, rgb(38 217 255 / 0.22), rgb(155 92 255 / 0.08)),
+    radial-gradient(circle at 50% 50%, rgb(38 217 255 / 0.16), transparent 60%), var(--panel-strong);
   color: var(--cyan);
   box-shadow:
     inset 0 0 18px rgb(38 217 255 / 0.28),
     0 0 22px rgb(38 217 255 / 0.28);
+  clip-path: polygon(0 12%, 12% 0, 88% 0, 100% 12%, 100% 88%, 88% 100%, 12% 100%, 0 88%);
 }
 
 .brand-chip .ui-icon {
-  width: 2rem;
-  height: 2rem;
+  width: 2.2rem;
+  height: 2.2rem;
 }
 
 .brand-copy {
@@ -190,7 +200,7 @@ button {
 
 .brand-copy h1 {
   margin: 0;
-  font-size: 1.7rem;
+  font-size: 1.78rem;
   line-height: 1;
   font-weight: 800;
 }
@@ -204,7 +214,7 @@ button {
 .progress-section {
   display: grid;
   align-items: center;
-  padding: 14px 40px;
+  padding: 13px 42px;
 }
 
 .progress-inner {
@@ -227,7 +237,7 @@ button {
 
 .progress-track {
   position: relative;
-  height: 14px;
+  height: 15px;
   overflow: hidden;
   border: 1px solid rgb(154 117 255 / 0.85);
   border-radius: 999px;
@@ -252,16 +262,17 @@ button {
   display: flex;
   justify-content: space-between;
   color: #cdd7ff;
-  font-size: 0.9rem;
-  font-weight: 700;
+  font-size: 0.94rem;
+  font-weight: 800;
+  line-height: 1;
 }
 
 .actions-section {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 16px;
-  padding: 10px 26px 10px 32px;
+  gap: 18px;
+  padding: 8px 25px 8px 34px;
 }
 
 .hud-score-module {
@@ -269,10 +280,10 @@ button {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  min-width: 168px;
-  height: 56px;
-  padding: 0 22px 0 18px;
+  gap: 11px;
+  min-width: 174px;
+  height: 62px;
+  padding: 0 24px 0 18px;
   border: 1px solid rgb(155 92 255 / 0.9);
   border-radius: 8px;
   background:
@@ -282,28 +293,27 @@ button {
   box-shadow:
     inset 0 0 18px rgb(155 92 255 / 0.28),
     0 0 16px rgb(155 92 255 / 0.18);
+  clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 50%, calc(100% - 16px) 100%, 0 100%);
 }
 
 .hud-score-module::after {
   position: absolute;
-  top: 8px;
-  right: -10px;
-  width: 18px;
-  height: calc(100% - 16px);
-  border-top: 1px solid rgb(155 92 255 / 0.7);
-  border-right: 1px solid rgb(155 92 255 / 0.7);
-  border-bottom: 1px solid rgb(155 92 255 / 0.7);
-  background: rgb(11 13 38 / 0.82);
-  clip-path: polygon(0 0, 100% 50%, 0 100%);
+  inset: 8px 13px 8px auto;
+  width: 1px;
+  background: rgb(197 151 255 / 0.42);
   content: "";
 }
 
 .hud-score-icon {
   display: grid;
   place-items: center;
-  width: 1.8rem;
-  height: 1.8rem;
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid rgb(199 162 255 / 0.55);
+  border-radius: 7px;
+  background: rgb(155 92 255 / 0.12);
   color: #b994ff;
+  clip-path: polygon(50% 0, 100% 25%, 100% 75%, 50% 100%, 0 75%, 0 25%);
 }
 
 .hud-score-icon .ui-icon {
@@ -313,7 +323,7 @@ button {
 
 .hud-score-module strong {
   color: #d7bdff;
-  font-size: 1.75rem;
+  font-size: 1.9rem;
   line-height: 1;
   text-shadow: 0 0 14px rgb(155 92 255 / 0.42);
 }
@@ -329,9 +339,9 @@ button {
   position: relative;
   display: grid;
   place-items: center;
-  flex: 0 0 84px;
-  width: 84px;
-  height: 68px;
+  flex: 0 0 90px;
+  width: 90px;
+  height: 72px;
   color: #f4efff;
 }
 
@@ -347,7 +357,9 @@ button {
   background:
     linear-gradient(180deg, rgb(155 92 255 / 0.42), rgb(12 11 39 / 0.96)),
     linear-gradient(90deg, rgb(38 217 255 / 0.16), transparent 42%, rgb(155 92 255 / 0.18));
-  box-shadow: 0 0 20px rgb(155 92 255 / 0.32);
+  box-shadow:
+    inset 0 0 18px rgb(155 92 255 / 0.22),
+    0 0 20px rgb(155 92 255 / 0.32);
 }
 
 .hud-level-module::after {
@@ -372,7 +384,7 @@ button {
 
 .hud-level-content strong {
   color: #f3efff;
-  font-size: 2rem;
+  font-size: 2.1rem;
   line-height: 1;
   text-shadow: 0 0 14px rgb(155 92 255 / 0.56);
 }
@@ -382,7 +394,7 @@ button {
   align-items: center;
   justify-content: center;
   gap: 9px;
-  min-width: 138px;
+  min-width: 146px;
   min-height: 42px;
   border: 1px solid rgb(82 127 202 / 0.64);
   border-radius: 7px;
@@ -409,7 +421,7 @@ button {
 .workbench {
   display: grid;
   grid-template-columns: 332px minmax(520px, 1fr) 420px;
-  gap: 14px;
+  gap: 10px;
   min-height: 0;
 }
 
@@ -493,6 +505,8 @@ button {
 
 .mission-icon {
   color: #63fff3;
+  width: 1.25rem;
+  height: 1.25rem;
 }
 
 .mission-title {
@@ -665,7 +679,7 @@ button {
   top: 0;
   left: 50%;
   z-index: 2;
-  min-width: 170px;
+  min-width: 168px;
   padding: 6px 18px;
   border: 1px solid var(--line);
   border-top: 0;
@@ -674,6 +688,25 @@ button {
   color: #65b8ff;
   text-align: center;
   transform: translateX(-50%);
+}
+
+.panel-tab::before,
+.panel-tab::after {
+  position: absolute;
+  top: 50%;
+  width: 54px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgb(53 217 255 / 0.45));
+  content: "";
+}
+
+.panel-tab::before {
+  right: 100%;
+}
+
+.panel-tab::after {
+  left: 100%;
+  transform: rotate(180deg);
 }
 
 .circuit-flow {
@@ -1020,7 +1053,7 @@ button {
 .signal-panel,
 .tests-panel,
 .hints-panel {
-  padding: 16px;
+  padding: 15px;
 }
 
 .chapter-chip {
@@ -1043,7 +1076,7 @@ button {
 }
 
 .challenge-prompt {
-  margin: 14px 0 0;
+  margin: 12px 0 0;
   color: #c0c9df;
   font-size: 0.9rem;
   line-height: 1.45;
@@ -1053,14 +1086,14 @@ button {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
-  margin-top: 16px;
+  margin-top: 14px;
 }
 
 .score-box {
   border: 1px solid rgb(65 102 169 / 0.42);
   border-radius: 7px;
   background: rgb(10 21 48 / 0.85);
-  padding: 12px;
+  padding: 11px;
 }
 
 .score-box span {
@@ -1090,7 +1123,7 @@ button {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
-  margin-top: 14px;
+  margin-top: 12px;
 }
 
 .cyber-button {
@@ -1147,7 +1180,7 @@ button {
 
 .cyber-button.wide {
   width: 100%;
-  margin-top: 10px;
+  margin-top: 9px;
   justify-content: space-between;
   padding-inline: 24px;
   font-size: 1rem;
@@ -1173,7 +1206,7 @@ button {
 }
 
 .status-card {
-  margin-top: 14px;
+  margin-top: 12px;
 }
 
 .status-card.is-success,
@@ -1217,6 +1250,10 @@ button {
   color: var(--violet);
 }
 
+.signal-panel .panel-title-line {
+  justify-content: flex-start;
+}
+
 .issue-stack {
   display: grid;
   gap: 8px;
@@ -1239,7 +1276,7 @@ button {
 .truth-table th,
 .truth-table td {
   border-bottom: 1px solid rgb(65 102 169 / 0.24);
-  padding: 9px 10px;
+  padding: 7px 10px;
   text-align: left;
   white-space: nowrap;
 }

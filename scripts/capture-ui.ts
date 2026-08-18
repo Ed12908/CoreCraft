@@ -1,6 +1,6 @@
 import { existsSync, mkdirSync } from "node:fs";
-import { resolve } from "node:path";
-import { chromium, type Browser } from "@playwright/test";
+import { dirname, resolve } from "node:path";
+import { type Browser, chromium } from "@playwright/test";
 
 const url = process.env.UI_URL ?? "http://127.0.0.1:5175/";
 const outputPath = resolve(process.cwd(), process.env.UI_SCREENSHOT ?? "screenshots/current.png");
@@ -27,45 +27,45 @@ const xorCircuit = {
     {
       id: "input-a",
       type: "component",
-      position: { x: 60, y: 100 },
+      position: { x: 60, y: -40 },
       deletable: false,
       data: { kind: "input", label: "A", fixed: true, value: 1 },
     },
     {
       id: "input-b",
       type: "component",
-      position: { x: 60, y: 260 },
+      position: { x: 60, y: 190 },
       deletable: false,
       data: { kind: "input", label: "B", fixed: true, value: 0 },
     },
     {
       id: "xor-and-top",
       type: "component",
-      position: { x: 295, y: 105 },
+      position: { x: 295, y: -80 },
       data: { kind: "and", label: "AND" },
     },
     {
       id: "xor-not",
       type: "component",
-      position: { x: 495, y: 75 },
+      position: { x: 495, y: -145 },
       data: { kind: "not", label: "NOT" },
     },
     {
       id: "xor-or",
       type: "component",
-      position: { x: 310, y: 285 },
+      position: { x: 310, y: 225 },
       data: { kind: "or", label: "OR" },
     },
     {
       id: "xor-and-out",
       type: "component",
-      position: { x: 580, y: 235 },
+      position: { x: 580, y: 60 },
       data: { kind: "and", label: "AND" },
     },
     {
       id: "output-out",
       type: "component",
-      position: { x: 770, y: 180 },
+      position: { x: 770, y: 75 },
       deletable: false,
       data: { kind: "output", label: "OUT", fixed: true, value: 0 },
     },
@@ -151,7 +151,7 @@ const persistedProgress = {
   version: 1,
 };
 
-mkdirSync(resolve(outputPath, ".."), { recursive: true });
+mkdirSync(dirname(outputPath), { recursive: true });
 
 const browser: Browser = await chromium.launch({
   executablePath,

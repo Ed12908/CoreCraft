@@ -2,6 +2,7 @@ import type { TestRunResult } from "../engine/runLevelTests";
 import { maxPointsForLevel } from "../engine/scoring";
 import type { SimulationResult } from "../engine/simulator";
 import type { Bit, Level, LevelScore } from "../engine/types";
+import { CyberButton } from "./CyberButton";
 import { UiIcon } from "./UiIcons";
 
 type InspectorPanelProps = {
@@ -63,20 +64,24 @@ export function InspectorPanel({
         </div>
 
         <div className="challenge-actions">
-          <button className="cyber-button primary" type="button" onClick={onRunTests}>
-            <UiIcon name="play" />
+          <CyberButton iconStart={<UiIcon name="play" />} variant="primary" onClick={onRunTests}>
             Run tests
-          </button>
-          <button className="cyber-button secondary" type="button" onClick={onReset}>
-            <UiIcon name="reset" />
+          </CyberButton>
+          <CyberButton iconStart={<UiIcon name="reset" />} variant="secondary" onClick={onReset}>
             Reset
-          </button>
+          </CyberButton>
         </div>
 
-        <button className="cyber-button success wide" disabled={!canGoNext} type="button" onClick={onNext}>
+        <CyberButton
+          disabled={!canGoNext}
+          iconEnd={<UiIcon name="arrow" />}
+          size="lg"
+          variant="success"
+          wide
+          onClick={onNext}
+        >
           Next level
-          <UiIcon name="arrow" />
-        </button>
+        </CyberButton>
 
         <div className={`status-card ${solved ? "is-success" : ""}`}>
           <UiIcon name={solved ? "check" : "wave"} />

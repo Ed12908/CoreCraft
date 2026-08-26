@@ -271,8 +271,8 @@ button {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 18px;
-  padding: 8px 25px 8px 34px;
+  gap: 14px;
+  padding: 8px 18px 8px 24px;
 }
 
 .hud-score-module {
@@ -281,7 +281,7 @@ button {
   align-items: center;
   justify-content: center;
   gap: 11px;
-  min-width: 174px;
+  min-width: 160px;
   height: 62px;
   padding: 0 24px 0 18px;
   border: 1px solid rgb(155 92 255 / 0.9);
@@ -339,8 +339,8 @@ button {
   position: relative;
   display: grid;
   place-items: center;
-  flex: 0 0 90px;
-  width: 90px;
+  flex: 0 0 82px;
+  width: 82px;
   height: 72px;
   color: #f4efff;
 }
@@ -387,35 +387,6 @@ button {
   font-size: 2.1rem;
   line-height: 1;
   text-shadow: 0 0 14px rgb(155 92 255 / 0.56);
-}
-
-.hud-clear-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 9px;
-  min-width: 146px;
-  min-height: 42px;
-  border: 1px solid rgb(82 127 202 / 0.64);
-  border-radius: 7px;
-  background: linear-gradient(180deg, rgb(12 27 58 / 0.95), rgb(4 10 25 / 0.98));
-  color: var(--cyan);
-  cursor: pointer;
-  font-size: 0.76rem;
-  font-weight: 900;
-  text-transform: uppercase;
-  transition:
-    border-color 140ms ease,
-    box-shadow 140ms ease,
-    transform 140ms ease;
-}
-
-.hud-clear-button:hover {
-  border-color: var(--cyan);
-  box-shadow:
-    inset 0 0 16px rgb(38 217 255 / 0.12),
-    0 0 14px rgb(38 217 255 / 0.18);
-  transform: translateY(-1px);
 }
 
 .workbench {
@@ -616,26 +587,6 @@ button {
   border-radius: 999px;
   background: currentColor;
   box-shadow: 0 0 8px currentColor;
-}
-
-.component-add-button {
-  width: 100%;
-  height: 32px;
-  margin-top: 10px;
-  border: 1px solid rgb(89 125 188 / 0.4);
-  border-radius: 6px;
-  background: linear-gradient(180deg, rgb(22 38 75 / 0.86), rgb(8 16 38 / 0.96));
-  color: #9eadd1;
-  cursor: pointer;
-  font-size: 0.76rem;
-  font-weight: 900;
-  text-transform: uppercase;
-}
-
-.component-add-button:hover {
-  border-color: var(--cyan);
-  color: var(--cyan);
-  box-shadow: inset 0 0 14px rgb(38 217 255 / 0.16);
 }
 
 .system-note {
@@ -1127,68 +1078,222 @@ button {
 }
 
 .cyber-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 9px;
+  --button-fill: rgb(8 17 40 / 0.92);
+  --button-edge: #4a7bd6;
+  --button-inner: rgb(148 188 255 / 0.26);
+  --button-glint: rgb(191 220 255 / 0.6);
+  --button-glow: rgb(38 217 255 / 0.18);
+
+  position: relative;
+  isolation: isolate;
+  display: inline-grid;
+  place-items: center;
+  min-width: 154px;
   min-height: 42px;
-  border: 1px solid rgb(78 119 188 / 0.55);
-  border-radius: 7px;
-  background: linear-gradient(180deg, rgb(21 34 69 / 0.96), rgb(7 14 34 / 0.98));
+  border: 0;
+  background: transparent;
   color: var(--text);
   cursor: pointer;
-  font-size: 0.82rem;
-  font-weight: 900;
-  text-transform: uppercase;
+  padding: 0;
   transition:
-    border-color 140ms ease,
-    box-shadow 140ms ease,
+    color 140ms ease,
+    filter 140ms ease,
+    opacity 140ms ease,
     transform 140ms ease;
 }
 
 .cyber-button:hover:not(:disabled) {
+  filter: brightness(1.08);
   transform: translateY(-1px);
 }
 
-.cyber-button.primary {
-  border-color: var(--violet);
-  background: linear-gradient(180deg, #6d45ff, #301483);
-  box-shadow:
-    inset 0 0 18px rgb(255 255 255 / 0.12),
-    0 0 18px rgb(155 92 255 / 0.38);
-}
-
-.cyber-button.secondary,
-.cyber-button.ghost {
-  background: linear-gradient(180deg, rgb(13 25 54 / 0.96), rgb(5 10 24 / 0.98));
-}
-
-.cyber-button.success {
-  border-color: var(--green);
-  background: linear-gradient(180deg, rgb(24 242 170 / 0.42), rgb(5 91 70 / 0.86));
-  box-shadow:
-    inset 0 0 20px rgb(24 242 170 / 0.18),
-    0 0 18px rgb(24 242 170 / 0.32);
-}
-
-.cyber-button.small {
-  min-height: 34px;
-  padding: 0 14px;
-  color: var(--cyan);
-  font-size: 0.68rem;
-}
-
-.cyber-button.wide {
-  width: 100%;
-  margin-top: 9px;
-  justify-content: space-between;
-  padding-inline: 24px;
-  font-size: 1rem;
+.cyber-button:focus-visible {
+  outline: 2px solid var(--button-edge);
+  outline-offset: 3px;
 }
 
 .cyber-button:disabled {
   cursor: not-allowed;
-  opacity: 0.52;
+  opacity: 0.5;
+}
+
+.cyber-button-frame {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.cyber-button-fill {
+  fill: var(--button-fill);
+}
+
+.cyber-button-edge,
+.cyber-button-inner,
+.cyber-button-glint {
+  fill: none;
+  vector-effect: non-scaling-stroke;
+}
+
+.cyber-button-edge {
+  stroke: var(--button-edge);
+  stroke-width: 1.4;
+  filter: drop-shadow(0 0 7px var(--button-glow));
+}
+
+.cyber-button-inner {
+  stroke: var(--button-inner);
+  stroke-width: 0.8;
+}
+
+.cyber-button-glint {
+  stroke: var(--button-glint);
+  stroke-linecap: round;
+  stroke-width: 1;
+  opacity: 0.78;
+}
+
+.cyber-button-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  width: 100%;
+  min-width: 0;
+  height: 100%;
+  padding: 0 22px;
+  font-size: 0.82rem;
+  font-weight: 900;
+  line-height: 1;
+  text-shadow: 0 0 10px rgb(255 255 255 / 0.18);
+  text-transform: uppercase;
+}
+
+.cyber-button-label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cyber-button-icon {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+}
+
+.cyber-button-icon .ui-icon {
+  width: 1rem;
+  height: 1rem;
+}
+
+.cyber-button-primary {
+  --button-fill: rgb(89 48 216 / 0.82);
+  --button-edge: #b48aff;
+  --button-inner: rgb(255 255 255 / 0.2);
+  --button-glint: rgb(229 210 255 / 0.85);
+  --button-glow: rgb(155 92 255 / 0.44);
+}
+
+.cyber-button-secondary {
+  --button-fill: rgb(7 14 33 / 0.94);
+  --button-edge: #587ab6;
+  --button-inner: rgb(106 151 224 / 0.28);
+  --button-glint: rgb(143 180 239 / 0.48);
+  --button-glow: rgb(74 132 255 / 0.18);
+}
+
+.cyber-button-success {
+  --button-fill: rgb(0 119 88 / 0.86);
+  --button-edge: var(--green);
+  --button-inner: rgb(144 255 218 / 0.26);
+  --button-glint: rgb(184 255 232 / 0.8);
+  --button-glow: rgb(24 242 170 / 0.42);
+}
+
+.cyber-button-ghost {
+  --button-fill: rgb(4 12 30 / 0.94);
+  --button-edge: #3b78bc;
+  --button-inner: rgb(38 217 255 / 0.16);
+  --button-glint: rgb(91 211 255 / 0.58);
+  --button-glow: rgb(38 217 255 / 0.2);
+  color: var(--cyan);
+}
+
+.cyber-button-library {
+  --button-fill: rgb(8 17 38 / 0.9);
+  --button-edge: rgb(89 125 188 / 0.58);
+  --button-inner: rgb(89 125 188 / 0.26);
+  --button-glint: rgb(151 177 222 / 0.42);
+  --button-glow: rgb(38 217 255 / 0.1);
+  color: #aebce1;
+}
+
+.cyber-button-library:hover:not(:disabled) {
+  --button-edge: var(--cyan);
+  --button-glow: rgb(38 217 255 / 0.32);
+  color: var(--cyan);
+}
+
+.cyber-button-sm {
+  min-width: 136px;
+  min-height: 34px;
+}
+
+.cyber-button-sm .cyber-button-content {
+  gap: 8px;
+  padding: 0 16px;
+  font-size: 0.7rem;
+}
+
+.cyber-button-md {
+  min-height: 42px;
+}
+
+.cyber-button-lg {
+  min-height: 46px;
+}
+
+.cyber-button-lg .cyber-button-content {
+  justify-content: space-between;
+  padding: 0 24px;
+  font-size: 1rem;
+}
+
+.cyber-button.is-wide {
+  width: 100%;
+}
+
+.cyber-button-lg.is-wide {
+  margin-top: 9px;
+}
+
+.challenge-actions .cyber-button {
+  min-width: 0;
+}
+
+.component-card .cyber-button {
+  margin-top: 10px;
+}
+
+.actions-section .cyber-button-sm {
+  min-width: 144px;
+}
+
+.actions-section .cyber-button-sm .cyber-button-content {
+  gap: 6px;
+  padding: 0 11px;
+  font-size: 0.64rem;
+}
+
+.actions-section .cyber-button-sm .cyber-button-icon .ui-icon {
+  width: 0.9rem;
+  height: 0.9rem;
 }
 
 .status-card,

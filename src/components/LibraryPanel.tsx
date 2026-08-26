@@ -1,5 +1,6 @@
 import { gateDefinitions } from "../engine/componentRegistry";
 import type { GateKind } from "../engine/types";
+import { CyberButton } from "./CyberButton";
 import { UiIcon } from "./UiIcons";
 
 type LibraryPanelProps = {
@@ -52,9 +53,9 @@ export function LibraryPanel({ allowedComponents, unlockedComponents, onAddCompo
                   </span>
                 </div>
               </div>
-              <button className="component-add-button" type="button" onClick={() => onAddComponent(kind)}>
+              <CyberButton size="sm" variant="library" wide onClick={() => onAddComponent(kind)}>
                 Drag to add
-              </button>
+              </CyberButton>
             </fieldset>
           );
         })}

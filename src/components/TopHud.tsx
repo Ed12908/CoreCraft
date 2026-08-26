@@ -1,3 +1,4 @@
+import { CyberButton } from "./CyberButton";
 import { UiIcon } from "./UiIcons";
 
 type TopHudProps = {
@@ -82,10 +83,9 @@ export function TopHud({
       <section className="hud-section actions-section" aria-label="Score and actions">
         <ScoreModule points={totalPoints} />
         <LevelModule level={currentLevel} />
-        <button className="hud-clear-button" type="button" onClick={onClearProgress}>
-          <UiIcon name="refresh" />
-          <span>Clear progress</span>
-        </button>
+        <CyberButton iconStart={<UiIcon name="refresh" />} size="sm" variant="ghost" onClick={onClearProgress}>
+          Clear progress
+        </CyberButton>
       </section>
     </header>
   );

@@ -103,6 +103,9 @@ button {
 }
 
 .cyber-panel {
+  --panel-accent: rgb(39 93 202 / 0.82);
+  --panel-accent-strong: rgb(38 217 255 / 0.72);
+
   position: relative;
   border: 1px solid var(--line);
   border-radius: var(--radius);
@@ -129,6 +132,43 @@ button {
 
 .cyber-panel::before {
   display: none;
+}
+
+.cyber-panel::after {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border-radius: inherit;
+  background:
+    linear-gradient(90deg, var(--panel-accent-strong), transparent 58px) top left / 96px 1px no-repeat,
+    linear-gradient(180deg, var(--panel-accent-strong), transparent 58px) top left / 1px 96px no-repeat,
+    linear-gradient(270deg, var(--panel-accent), transparent 58px) top right / 96px 1px no-repeat,
+    linear-gradient(180deg, var(--panel-accent), transparent 58px) top right / 1px 96px no-repeat,
+    linear-gradient(90deg, var(--panel-accent), transparent 58px) bottom left / 96px 1px no-repeat,
+    linear-gradient(0deg, var(--panel-accent), transparent 58px) bottom left / 1px 96px no-repeat,
+    linear-gradient(270deg, var(--panel-accent), transparent 58px) bottom right / 96px 1px no-repeat,
+    linear-gradient(0deg, var(--panel-accent), transparent 58px) bottom right / 1px 96px no-repeat;
+  box-shadow: inset 0 0 0 1px rgb(122 157 255 / 0.06);
+  content: "";
+  pointer-events: none;
+}
+
+.left-rail .cyber-panel,
+.canvas-panel {
+  --panel-accent: rgb(25 117 212 / 0.7);
+  --panel-accent-strong: rgb(38 217 255 / 0.72);
+}
+
+.right-rail .cyber-panel {
+  --panel-accent: rgb(91 70 217 / 0.76);
+  --panel-accent-strong: rgb(155 92 255 / 0.78);
+}
+
+.challenge-panel,
+.status-card.is-success,
+.signal-status.is-settled {
+  --panel-accent: rgb(24 242 170 / 0.64);
+  --panel-accent-strong: rgb(24 242 170 / 0.9);
 }
 
 .top-hud::after {
@@ -430,6 +470,9 @@ button {
 }
 
 .mission-row {
+  --row-accent: rgb(82 127 202 / 0.55);
+
+  position: relative;
   display: grid;
   grid-template-columns: 34px 28px minmax(0, 1fr) auto 18px;
   align-items: center;
@@ -448,8 +491,24 @@ button {
     transform 140ms ease;
 }
 
+.mission-row::before {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    linear-gradient(90deg, var(--row-accent), transparent 44px) top left / 76px 1px no-repeat,
+    linear-gradient(180deg, var(--row-accent), transparent 34px) top left / 1px 58px no-repeat,
+    linear-gradient(270deg, var(--row-accent), transparent 44px) bottom right / 76px 1px no-repeat,
+    linear-gradient(0deg, var(--row-accent), transparent 34px) bottom right / 1px 58px no-repeat;
+  content: "";
+  opacity: 0.75;
+  pointer-events: none;
+}
+
 .mission-row:hover:not(:disabled),
 .mission-row.is-active {
+  --row-accent: rgb(181 104 255 / 0.95);
+
   border-color: var(--violet);
   background: linear-gradient(180deg, rgb(94 45 204 / 0.72), rgb(27 17 71 / 0.92));
   box-shadow:
@@ -506,12 +565,59 @@ button {
 }
 
 .component-card {
+  --card-accent: rgb(65 112 189 / 0.62);
+  --card-accent-strong: rgb(38 217 255 / 0.52);
+
+  position: relative;
   margin: 0;
   padding: 10px;
   border: 1px solid rgb(73 116 190 / 0.46);
   border-radius: 8px;
   background: linear-gradient(180deg, rgb(13 28 60 / 0.82), rgb(7 15 33 / 0.96));
   cursor: grab;
+  overflow: hidden;
+}
+
+.component-card::before {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    linear-gradient(90deg, var(--card-accent-strong), transparent 52px) top left / 88px 1px no-repeat,
+    linear-gradient(180deg, var(--card-accent-strong), transparent 42px) top left / 1px 76px no-repeat,
+    linear-gradient(270deg, var(--card-accent), transparent 52px) bottom right / 88px 1px no-repeat,
+    linear-gradient(0deg, var(--card-accent), transparent 42px) bottom right / 1px 76px no-repeat;
+  content: "";
+  pointer-events: none;
+}
+
+.component-card::after {
+  position: absolute;
+  top: 0;
+  right: 28px;
+  width: 42px;
+  height: 1px;
+  background: var(--card-accent-strong);
+  box-shadow: 0 0 8px var(--card-accent-strong);
+  content: "";
+  opacity: 0.58;
+  pointer-events: none;
+}
+
+.component-not,
+.component-and {
+  --card-accent: rgb(155 92 255 / 0.62);
+  --card-accent-strong: rgb(184 120 255 / 0.7);
+}
+
+.component-or {
+  --card-accent: rgb(38 217 255 / 0.62);
+  --card-accent-strong: rgb(38 217 255 / 0.76);
+}
+
+.component-xor {
+  --card-accent: rgb(24 242 170 / 0.58);
+  --card-accent-strong: rgb(24 242 170 / 0.72);
 }
 
 .component-card:active {
@@ -661,6 +767,8 @@ button {
 }
 
 .circuit-flow {
+  --canvas-accent: rgb(38 217 255 / 0.52);
+
   position: relative;
   min-height: 0;
   flex: 1;
@@ -668,6 +776,31 @@ button {
   border: 1px solid rgb(39 93 202 / 0.35);
   border-radius: 8px;
   background: #030817;
+}
+
+.circuit-flow::after {
+  position: absolute;
+  inset: 8px;
+  z-index: 4;
+  border: 1px solid rgb(39 93 202 / 0.34);
+  border-radius: 6px;
+  background:
+    linear-gradient(
+      90deg,
+      transparent 0 26%,
+      var(--canvas-accent) 26% 26.2%,
+      transparent 26.2% 74%,
+      var(--canvas-accent) 74% 74.2%,
+      transparent 74.2%
+    )
+    top center / 100% 1px no-repeat,
+    linear-gradient(90deg, var(--canvas-accent), transparent 90px) top left / 150px 1px no-repeat,
+    linear-gradient(270deg, var(--canvas-accent), transparent 90px) top right / 150px 1px no-repeat,
+    linear-gradient(90deg, var(--canvas-accent), transparent 90px) bottom left / 150px 1px no-repeat,
+    linear-gradient(270deg, var(--canvas-accent), transparent 90px) bottom right / 150px 1px no-repeat;
+  content: "";
+  opacity: 0.78;
+  pointer-events: none;
 }
 
 .micro-flow-grid {
@@ -1041,10 +1174,25 @@ button {
 }
 
 .score-box {
+  position: relative;
+  overflow: hidden;
   border: 1px solid rgb(65 102 169 / 0.42);
   border-radius: 7px;
   background: rgb(10 21 48 / 0.85);
   padding: 11px;
+}
+
+.score-box::before {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    linear-gradient(90deg, rgb(95 141 222 / 0.5), transparent 46px) top left / 82px 1px no-repeat,
+    linear-gradient(180deg, rgb(95 141 222 / 0.44), transparent 34px) top left / 1px 62px no-repeat,
+    linear-gradient(270deg, rgb(95 141 222 / 0.34), transparent 46px) bottom right / 82px 1px no-repeat,
+    linear-gradient(0deg, rgb(95 141 222 / 0.3), transparent 34px) bottom right / 1px 62px no-repeat;
+  content: "";
+  pointer-events: none;
 }
 
 .score-box span {
@@ -1298,6 +1446,9 @@ button {
 
 .status-card,
 .signal-status {
+  --status-accent: rgb(65 102 169 / 0.5);
+
+  position: relative;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -1308,6 +1459,21 @@ button {
   color: #c9d4ec;
   font-size: 0.86rem;
   line-height: 1.35;
+  overflow: hidden;
+}
+
+.status-card::before,
+.signal-status::before {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    linear-gradient(90deg, var(--status-accent), transparent 54px) top left / 92px 1px no-repeat,
+    linear-gradient(180deg, var(--status-accent), transparent 32px) top left / 1px 58px no-repeat,
+    linear-gradient(270deg, var(--status-accent), transparent 54px) bottom right / 92px 1px no-repeat,
+    linear-gradient(0deg, var(--status-accent), transparent 32px) bottom right / 1px 58px no-repeat;
+  content: "";
+  pointer-events: none;
 }
 
 .status-card {
@@ -1316,6 +1482,8 @@ button {
 
 .status-card.is-success,
 .signal-status.is-settled {
+  --status-accent: rgb(24 242 170 / 0.76);
+
   border-color: var(--green);
   background: var(--green-soft);
   color: var(--green);
@@ -1372,10 +1540,14 @@ button {
   width: 100%;
   border-collapse: collapse;
   overflow: hidden;
-  border: 1px solid rgb(65 102 169 / 0.32);
+  border: 1px solid rgb(65 102 169 / 0.38);
   border-radius: 7px;
   color: #dce6fb;
   font-size: 0.76rem;
+  box-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 0.025),
+    inset 38px 0 48px rgb(38 217 255 / 0.025),
+    inset -38px 0 48px rgb(155 92 255 / 0.025);
 }
 
 .truth-table th,

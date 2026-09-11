@@ -1,7 +1,7 @@
 import type { TestRunResult } from "../engine/runLevelTests";
 import { maxPointsForLevel } from "../engine/scoring";
 import type { SimulationResult } from "../engine/simulator";
-import type { Bit, Level, LevelScore } from "../engine/types";
+import type { Level, LevelScore } from "../engine/types";
 import { CyberButton } from "./CyberButton";
 import { UiIcon } from "./UiIcons";
 
@@ -19,12 +19,6 @@ type InspectorPanelProps = {
   solved: boolean;
 };
 
-function renderBits(values: Record<string, Bit>): string {
-  return Object.entries(values)
-    .map(([key, value]) => `${key}=${value}`)
-    .join("  ");
-}
-
 export function InspectorPanel({
   level,
   simulation,
@@ -41,6 +35,8 @@ export function InspectorPanel({
   const visibleIssues = simulation.issues.slice(0, 4);
   const currentMinimal = currentUsedComponents <= level.minimumComponents;
   const bestPoints = levelScore ? `${levelScore.points}/${levelScore.maxPoints}` : `0/${maxPointsForLevel()}`;
+  const inputKeys = Object.keys(level.tests[0]?.inputs ?? {});
+  const outputKeys = Object.keys(level.tests[0]?.outputs ?? {});
 
   return (
     <div className="inspector-stack">
@@ -125,11 +121,38 @@ export function InspectorPanel({
           <table className="truth-table">
             <thead>
               <tr>
-                <th>Case</th>
-                <th>Input</th>
-                <th>Expected</th>
-                <th>Actual</th>
-                <th>Result</th>
+                <th rowSpan={2} scope="col">
+                  Case
+                </th>
+                <th colSpan={inputKeys.length} scope="colgroup">
+                  Input
+                </th>
+                <th colSpan={outputKeys.length} scope="colgroup">
+                  Expected
+                </th>
+                <th colSpan={outputKeys.length} scope="colgroup">
+                  Actual
+                </th>
+                <th rowSpan={2} scope="col">
+                  Result
+                </th>
+              </tr>
+              <tr>
+                {inputKeys.map((key) => (
+                  <th key={`input-${key}`} scope="col">
+                    {key}
+                  </th>
+                ))}
+                {outputKeys.map((key) => (
+                  <th key={`expected-${key}`} scope="col">
+                    {key}
+                  </th>
+                ))}
+                {outputKeys.map((key) => (
+                  <th key={`actual-${key}`} scope="col">
+                    {key}
+                  </th>
+                ))}
               </tr>
             </thead>
             <tbody>
@@ -138,15 +161,15 @@ export function InspectorPanel({
                 return (
                   <tr key={testCase.name}>
                     <td>{testCase.name}</td>
-                    <td>{renderBits(testCase.inputs)}</td>
-                    <td>{renderBits(testCase.outputs)}</td>
-                    <td>
-                      {result
-                        ? Object.entries(result.actual)
-                            .map(([key, value]) => `${key}=${value ?? "?"}`)
-                            .join("  ")
-                        : "-"}
-                    </td>
+                    {inputKeys.map((key) => (
+                      <td key={`${testCase.name}-input-${key}`}>{testCase.inputs[key]}</td>
+                    ))}
+                    {outputKeys.map((key) => (
+                      <td key={`${testCase.name}-expected-${key}`}>{testCase.outputs[key]}</td>
+                    ))}
+                    {outputKeys.map((key) => (
+                      <td key={`${testCase.name}-actual-${key}`}>{result ? (result.actual[key] ?? "?") : "-"}</td>
+                    ))}
                     <td>
                       <span className={`test-result ${result ? (result.passed ? "is-pass" : "is-fail") : ""}`}>
                         {result ? (result.passed ? "Pass" : "Fail") : "Not Run"}

@@ -17,6 +17,8 @@
     "test:watch": "vitest"
   },
   "dependencies": {
+    "@fontsource/orbitron": "5.2.8",
+    "@fontsource/rajdhani": "5.2.7",
     "@tailwindcss/vite": "latest",
     "@xyflow/react": "latest",
     "daisyui": "latest",

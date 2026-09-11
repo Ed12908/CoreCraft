@@ -1,3 +1,9 @@
+@import "@fontsource/rajdhani/latin-400.css";
+@import "@fontsource/rajdhani/latin-500.css";
+@import "@fontsource/rajdhani/latin-600.css";
+@import "@fontsource/rajdhani/latin-700.css";
+@import "@fontsource/orbitron/latin-700.css";
+@import "@fontsource/orbitron/latin-800.css";
 @import "tailwindcss";
 @plugin "daisyui/index.js";
 
@@ -23,6 +29,8 @@
   --muted: #91a4ca;
   --dim: #5d709c;
   --radius: 8px;
+  --font-display: Orbitron, Rajdhani, ui-sans-serif, system-ui, sans-serif;
+  --font-ui: Rajdhani, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 * {
@@ -48,7 +56,7 @@ body {
     48px 48px,
     auto;
   color: var(--text);
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: var(--font-ui);
 }
 
 button,
@@ -86,7 +94,7 @@ button {
 .top-hud {
   position: relative;
   display: grid;
-  grid-template-columns: 390px minmax(520px, 1fr) 470px;
+  grid-template-columns: 430px minmax(480px, 1fr) 450px;
   gap: 0;
   min-height: 0;
   overflow: hidden;
@@ -239,28 +247,33 @@ button {
 }
 
 .brand-copy h1 {
+  font-family: var(--font-display);
   margin: 0;
-  font-size: 1.78rem;
+  overflow: hidden;
+  font-size: 1.48rem;
   line-height: 1;
   font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .brand-copy p {
   margin: 8px 0 0;
   color: #c3cce4;
-  font-size: 0.95rem;
+  font-size: 1.05rem;
+  font-weight: 600;
 }
 
 .progress-section {
   display: grid;
   align-items: center;
-  padding: 13px 42px;
+  padding: 11px 42px;
 }
 
 .progress-inner {
   display: grid;
   width: 100%;
-  gap: 10px;
+  gap: 8px;
 }
 
 .hud-label,
@@ -268,9 +281,10 @@ button {
 .panel-tab,
 .panel-title-line,
 .unlocked-strip h3 {
+  font-family: var(--font-ui);
   margin: 0;
   color: #b68cff;
-  font-size: 0.86rem;
+  font-size: 0.92rem;
   font-weight: 800;
   text-transform: uppercase;
 }
@@ -302,9 +316,11 @@ button {
   display: flex;
   justify-content: space-between;
   color: #cdd7ff;
-  font-size: 0.94rem;
+  font-family: var(--font-ui);
+  font-size: 0.92rem;
   font-weight: 800;
   line-height: 1;
+  text-transform: uppercase;
 }
 
 .actions-section {
@@ -363,6 +379,7 @@ button {
 
 .hud-score-module strong {
   color: #d7bdff;
+  font-family: var(--font-display);
   font-size: 1.9rem;
   line-height: 1;
   text-shadow: 0 0 14px rgb(155 92 255 / 0.42);
@@ -370,6 +387,7 @@ button {
 
 .hud-score-module > span:last-child {
   color: #d9d0ff;
+  font-family: var(--font-display);
   font-size: 0.78rem;
   font-weight: 800;
   text-transform: uppercase;
@@ -417,6 +435,7 @@ button {
 
 .hud-level-content span {
   color: #d5c8ff;
+  font-family: var(--font-display);
   font-size: 0.68rem;
   font-weight: 800;
   text-transform: uppercase;
@@ -424,6 +443,7 @@ button {
 
 .hud-level-content strong {
   color: #f3efff;
+  font-family: var(--font-display);
   font-size: 2.1rem;
   line-height: 1;
   text-shadow: 0 0 14px rgb(155 92 255 / 0.56);
@@ -457,7 +477,7 @@ button {
 .rail-subtitle {
   margin: 4px 0 14px;
   color: var(--muted);
-  font-size: 0.72rem;
+  font-size: 0.8rem;
   font-weight: 700;
   text-transform: uppercase;
 }
@@ -541,8 +561,8 @@ button {
 
 .mission-title {
   overflow: hidden;
-  font-size: 0.86rem;
-  font-weight: 800;
+  font-size: 0.92rem;
+  font-weight: 700;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -552,8 +572,10 @@ button {
   border-radius: 999px;
   background: rgb(24 242 170 / 0.1);
   color: var(--green);
-  font-size: 0.68rem;
+  font-family: var(--font-ui);
+  font-size: 0.76rem;
   font-weight: 800;
+  text-transform: uppercase;
 }
 
 .mission-check {
@@ -649,12 +671,14 @@ button {
 
 .component-title {
   color: #f6f8ff;
-  font-weight: 800;
+  font-size: 1rem;
+  font-weight: 700;
 }
 
 .component-desc {
   color: #aebce1;
-  font-size: 0.78rem;
+  font-size: 0.84rem;
+  font-weight: 500;
   line-height: 1.25;
 }
 
@@ -671,8 +695,10 @@ button {
   border-radius: 6px;
   background: rgb(38 217 255 / 0.1);
   color: var(--cyan);
-  font-size: 0.7rem;
+  font-family: var(--font-ui);
+  font-size: 0.76rem;
   font-weight: 900;
+  text-transform: uppercase;
 }
 
 .component-chip {
@@ -1148,21 +1174,25 @@ button {
   background: var(--green-soft);
   padding: 4px 9px;
   color: var(--green);
-  font-size: 0.72rem;
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
   font-weight: 900;
   text-transform: uppercase;
 }
 
 .challenge-panel h2 {
+  font-family: var(--font-ui);
   margin: 12px 0 0;
-  font-size: 1.42rem;
+  font-size: 1.55rem;
+  font-weight: 700;
   line-height: 1.1;
 }
 
 .challenge-prompt {
   margin: 12px 0 0;
   color: #c0c9df;
-  font-size: 0.9rem;
+  font-size: 1rem;
+  font-weight: 500;
   line-height: 1.45;
 }
 
@@ -1198,7 +1228,8 @@ button {
 .score-box span {
   display: block;
   color: var(--muted);
-  font-size: 0.74rem;
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
   font-weight: 900;
   text-transform: uppercase;
 }
@@ -1207,7 +1238,10 @@ button {
   display: block;
   margin-top: 8px;
   color: #f8fbff;
-  font-size: 1.25rem;
+  font-family: var(--font-ui);
+  font-size: 1.45rem;
+  font-weight: 700;
+  text-transform: uppercase;
 }
 
 .score-box .is-optimal {
@@ -1315,7 +1349,8 @@ button {
   min-width: 0;
   height: 100%;
   padding: 0 22px;
-  font-size: 0.82rem;
+  font-family: var(--font-ui);
+  font-size: 0.92rem;
   font-weight: 900;
   line-height: 1;
   text-shadow: 0 0 10px rgb(255 255 255 / 0.18);
@@ -1396,7 +1431,7 @@ button {
 .cyber-button-sm .cyber-button-content {
   gap: 8px;
   padding: 0 16px;
-  font-size: 0.7rem;
+  font-size: 0.84rem;
 }
 
 .cyber-button-md {
@@ -1436,7 +1471,7 @@ button {
 .actions-section .cyber-button-sm .cyber-button-content {
   gap: 6px;
   padding: 0 11px;
-  font-size: 0.64rem;
+  font-size: 0.78rem;
 }
 
 .actions-section .cyber-button-sm .cyber-button-icon .ui-icon {
@@ -1457,7 +1492,8 @@ button {
   background: rgb(10 21 48 / 0.82);
   padding: 12px;
   color: #c9d4ec;
-  font-size: 0.86rem;
+  font-size: 0.94rem;
+  font-weight: 500;
   line-height: 1.35;
   overflow: hidden;
 }
@@ -1543,7 +1579,8 @@ button {
   border: 1px solid rgb(65 102 169 / 0.38);
   border-radius: 7px;
   color: #dce6fb;
-  font-size: 0.76rem;
+  font-size: 0.82rem;
+  font-weight: 500;
   box-shadow:
     inset 0 0 0 1px rgb(255 255 255 / 0.025),
     inset 38px 0 48px rgb(38 217 255 / 0.025),
@@ -1560,7 +1597,10 @@ button {
 
 .truth-table th {
   color: #b7c3dc;
-  font-weight: 900;
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+  font-weight: 800;
+  text-transform: uppercase;
 }
 
 .truth-table tr:last-child td {
@@ -1579,8 +1619,10 @@ button {
   gap: 6px;
   border-radius: 999px;
   color: #7f8dad;
-  font-size: 0.68rem;
+  font-family: var(--font-ui);
+  font-size: 0.76rem;
   font-weight: 800;
+  text-transform: uppercase;
 }
 
 .test-count {
@@ -1608,7 +1650,8 @@ button {
   justify-content: space-between;
   cursor: pointer;
   color: #b68cff;
-  font-size: 0.86rem;
+  font-family: var(--font-ui);
+  font-size: 0.92rem;
   font-weight: 900;
   list-style: none;
   text-transform: uppercase;
@@ -1633,7 +1676,8 @@ button {
   gap: 8px;
   margin-top: 14px;
   color: #c4cce0;
-  font-size: 0.84rem;
+  font-size: 0.94rem;
+  font-weight: 500;
   line-height: 1.45;
 }
 

@@ -1,7 +1,7 @@
 import { Handle, type NodeProps, Position, useReactFlow } from "@xyflow/react";
 import { memo } from "react";
 import { getDefinition, handleId } from "../engine/componentRegistry";
-import type { CircuitEdge, CircuitNode, ComponentKind } from "../engine/types";
+import type { CircuitEdge, CircuitNode, ComponentKind, PortSpec, SignalValue } from "../engine/types";
 import { useCircuitRuntime } from "./CircuitRuntimeContext";
 import { DeleteIcon } from "./DeleteIcon";
 import { UiIcon } from "./UiIcons";
@@ -18,14 +18,26 @@ function kindBadge(kind: ComponentKind): string {
   return "node-badge-primary";
 }
 
-function valueClass(value: 0 | 1 | undefined): string {
-  if (value === 1) return "is-high";
+function valueClass(value: SignalValue | undefined): string {
+  if (value !== undefined && value > 0) return "is-high";
   if (value === 0) return "is-low";
   return "is-unknown";
 }
 
-function formatValue(value: 0 | 1 | undefined): string {
-  return value === undefined ? "?" : String(value);
+function formatValue(value: SignalValue | undefined, width = 1): string {
+  if (value === undefined) return "?";
+  if (width <= 1) return String(value);
+  return `0x${value.toString(16).toUpperCase()}`;
+}
+
+function portWidth(kind: ComponentKind, nodeWidth: unknown, port: PortSpec): number {
+  if (kind === "input" || kind === "output") return Number(nodeWidth ?? port.width);
+  return port.width;
+}
+
+function formatPortLabel(kind: ComponentKind, nodeWidth: unknown, port: PortSpec): string {
+  const width = portWidth(kind, nodeWidth, port);
+  return width > 1 ? `${port.label}[${width}]` : port.label;
 }
 
 function ComponentNodeBase({ id, data, selected, deletable }: NodeProps<CircuitNode>) {
@@ -34,6 +46,7 @@ function ComponentNodeBase({ id, data, selected, deletable }: NodeProps<CircuitN
   const { deleteElements } = useReactFlow<CircuitNode, CircuitEdge>();
   const outputValue = simulation.nodeOutputs[id]?.out;
   const inputValue = simulation.nodeInputs[id]?.in;
+  const inputWidth = Number(data.width ?? 1);
 
   return (
     <div className={`micro-node micro-node-${data.kind}`} data-selected={selected ? "true" : "false"}>
@@ -93,7 +106,7 @@ function ComponentNodeBase({ id, data, selected, deletable }: NodeProps<CircuitN
               }}
               type="button"
             >
-              {formatValue(outputValue)}
+              {formatValue(outputValue, inputWidth)}
             </button>
           </div>
         )}
@@ -101,7 +114,7 @@ function ComponentNodeBase({ id, data, selected, deletable }: NodeProps<CircuitN
         {data.kind === "output" && (
           <div className="node-value-row">
             <span>signal</span>
-            <span className={`node-value-pill ${valueClass(inputValue)}`}>{formatValue(inputValue)}</span>
+            <span className={`node-value-pill ${valueClass(inputValue)}`}>{formatValue(inputValue, inputWidth)}</span>
           </div>
         )}
 
@@ -110,9 +123,9 @@ function ComponentNodeBase({ id, data, selected, deletable }: NodeProps<CircuitN
             <div className="micro-port-column">
               {definition.inputs.map((port) => (
                 <div className="micro-port-label" key={port.id}>
-                  <span>{port.label}</span>
+                  <span>{formatPortLabel(data.kind, data.width, port)}</span>
                   <span className={`node-value-pill ${valueClass(simulation.nodeInputs[id]?.[port.id])}`}>
-                    {formatValue(simulation.nodeInputs[id]?.[port.id])}
+                    {formatValue(simulation.nodeInputs[id]?.[port.id], portWidth(data.kind, data.width, port))}
                   </span>
                 </div>
               ))}
@@ -120,9 +133,9 @@ function ComponentNodeBase({ id, data, selected, deletable }: NodeProps<CircuitN
             <div className="micro-port-column">
               {definition.outputs.map((port) => (
                 <div className="micro-port-label" key={port.id}>
-                  <span>{port.label}</span>
+                  <span>{formatPortLabel(data.kind, data.width, port)}</span>
                   <span className={`node-value-pill ${valueClass(simulation.nodeOutputs[id]?.[port.id])}`}>
-                    {formatValue(simulation.nodeOutputs[id]?.[port.id])}
+                    {formatValue(simulation.nodeOutputs[id]?.[port.id], portWidth(data.kind, data.width, port))}
                   </span>
                 </div>
               ))}

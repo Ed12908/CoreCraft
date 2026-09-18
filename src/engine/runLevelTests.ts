@@ -1,9 +1,9 @@
 import { simulateCircuit } from "./simulator";
-import type { Bit, CircuitEdge, CircuitNode, Level, LogicCase } from "./types";
+import type { CircuitEdge, CircuitNode, Level, LogicCase, SignalValue } from "./types";
 
 export type CaseResult = {
   testCase: LogicCase;
-  actual: Record<string, Bit | undefined>;
+  actual: Record<string, SignalValue | undefined>;
   passed: boolean;
   messages: string[];
 };
@@ -18,7 +18,7 @@ export type TestRunResult = {
 export function runLevelTests(level: Level, nodes: CircuitNode[], edges: CircuitEdge[]): TestRunResult {
   const cases = level.tests.map((testCase): CaseResult => {
     const simulation = simulateCircuit(nodes, edges, testCase.inputs);
-    const actual: Record<string, Bit | undefined> = {};
+    const actual: Record<string, SignalValue | undefined> = {};
     const messages: string[] = [];
 
     for (const [label, expected] of Object.entries(testCase.outputs)) {

@@ -19,6 +19,12 @@ type InspectorPanelProps = {
   solved: boolean;
 };
 
+function formatSignal(value: number | undefined, width = 1): string {
+  if (value === undefined) return "?";
+  if (width <= 1) return String(value);
+  return `0x${value.toString(16).toUpperCase()}`;
+}
+
 export function InspectorPanel({
   level,
   simulation,
@@ -37,6 +43,7 @@ export function InspectorPanel({
   const bestPoints = levelScore ? `${levelScore.points}/${levelScore.maxPoints}` : `0/${maxPointsForLevel()}`;
   const inputKeys = Object.keys(level.tests[0]?.inputs ?? {});
   const outputKeys = Object.keys(level.tests[0]?.outputs ?? {});
+  const widthForLabel = (label: string) => level.givens.find((given) => given.label === label)?.width ?? 1;
 
   return (
     <div className="inspector-stack">
@@ -162,13 +169,19 @@ export function InspectorPanel({
                   <tr key={testCase.name}>
                     <td>{testCase.name}</td>
                     {inputKeys.map((key) => (
-                      <td key={`${testCase.name}-input-${key}`}>{testCase.inputs[key]}</td>
+                      <td key={`${testCase.name}-input-${key}`}>
+                        {formatSignal(testCase.inputs[key], widthForLabel(key))}
+                      </td>
                     ))}
                     {outputKeys.map((key) => (
-                      <td key={`${testCase.name}-expected-${key}`}>{testCase.outputs[key]}</td>
+                      <td key={`${testCase.name}-expected-${key}`}>
+                        {formatSignal(testCase.outputs[key], widthForLabel(key))}
+                      </td>
                     ))}
                     {outputKeys.map((key) => (
-                      <td key={`${testCase.name}-actual-${key}`}>{result ? (result.actual[key] ?? "?") : "-"}</td>
+                      <td key={`${testCase.name}-actual-${key}`}>
+                        {result ? formatSignal(result.actual[key], widthForLabel(key)) : "-"}
+                      </td>
                     ))}
                     <td>
                       <span className={`test-result ${result ? (result.passed ? "is-pass" : "is-fail") : ""}`}>

@@ -13,7 +13,7 @@ const levelIcons = ["switch", "wave", "circuit", "or", "xor", "sigma"] as const;
 
 export function LevelNavigator({ levels, currentIndex, solvedLevelIds, levelScores, onSelect }: LevelNavigatorProps) {
   return (
-    <section className="cyber-panel rail-panel">
+    <section className="cyber-panel rail-panel mission-log-panel">
       <div className="rail-heading">Mission Log</div>
       <div className="mission-list">
         {levels.map((level, index) => {

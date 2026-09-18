@@ -1,7 +1,7 @@
 import { gateDefinitions } from "../engine/componentRegistry";
 import type { GateKind } from "../engine/types";
 import { CyberButton } from "./CyberButton";
-import { UiIcon } from "./UiIcons";
+import { UiIcon, type UiIconName } from "./UiIcons";
 
 type LibraryPanelProps = {
   allowedComponents: GateKind[];
@@ -9,7 +9,30 @@ type LibraryPanelProps = {
   onAddComponent: (kind: GateKind) => void;
 };
 
-const allGateKinds: GateKind[] = ["not", "and", "or", "xor"];
+const allGateKinds: GateKind[] = [
+  "not",
+  "and",
+  "or",
+  "xor",
+  "halfAdder",
+  "fullAdder",
+  "adder2",
+  "adder4",
+  "bus4",
+  "splitter",
+  "joiner",
+  "comparator",
+  "incrementer",
+  "subtractor",
+];
+
+function iconForComponent(kind: GateKind): UiIconName {
+  if (kind === "not" || kind === "and" || kind === "or" || kind === "xor") return kind;
+  if (kind === "halfAdder" || kind === "fullAdder" || kind === "adder2" || kind === "adder4") return "sigma";
+  if (kind === "incrementer" || kind === "subtractor" || kind === "comparator") return "chip";
+  if (kind === "const0" || kind === "const1") return "switch";
+  return "circuit";
+}
 
 export function LibraryPanel({ allowedComponents, unlockedComponents, onAddComponent }: LibraryPanelProps) {
   return (
@@ -40,7 +63,7 @@ export function LibraryPanel({ allowedComponents, unlockedComponents, onAddCompo
               }}
             >
               <div className="component-card-main">
-                <UiIcon className="component-icon" name={kind} />
+                <UiIcon className="component-icon" name={iconForComponent(kind)} />
                 <div className="component-copy">
                   <div className="component-title">{definition.title}</div>
                   <div className="component-desc">{definition.description}</div>

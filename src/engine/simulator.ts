@@ -1,10 +1,10 @@
-import { getDefinition, parseHandleId } from "./componentRegistry";
-import type { Bit, CircuitEdge, CircuitNode } from "./types";
+import { getDefinition, getNodePortWidth, parseHandleId } from "./componentRegistry";
+import type { CircuitEdge, CircuitNode, SignalValue } from "./types";
 
-export type PortValueMap = Record<string, Record<string, Bit>>;
+export type PortValueMap = Record<string, Record<string, SignalValue>>;
 
 export type SimulationIssue = {
-  code: "invalid-wire" | "missing-input" | "multiple-drivers" | "floating-source" | "feedback";
+  code: "invalid-wire" | "missing-input" | "multiple-drivers" | "floating-source" | "feedback" | "width-mismatch";
   message: string;
   nodeId?: string;
   portId?: string;
@@ -14,12 +14,12 @@ export type SimulationIssue = {
 export type SimulationResult = {
   nodeInputs: PortValueMap;
   nodeOutputs: PortValueMap;
-  edgeValues: Record<string, Bit | undefined>;
-  outputsByLabel: Record<string, Bit | undefined>;
+  edgeValues: Record<string, SignalValue | undefined>;
+  outputsByLabel: Record<string, SignalValue | undefined>;
   issues: SimulationIssue[];
 };
 
-type OutputMap = Map<string, Bit>;
+type OutputMap = Map<string, SignalValue>;
 type IncomingMap = Map<string, CircuitEdge[]>;
 
 function outputKey(nodeId: string, portId: string): string {
@@ -30,12 +30,24 @@ function inputKey(nodeId: string, portId: string): string {
   return `${nodeId}.${portId}`;
 }
 
-function setPortValue(map: PortValueMap, nodeId: string, portId: string, value: Bit): void {
+function widthMask(width: number): number {
+  return 2 ** Math.max(1, width) - 1;
+}
+
+function normalizeValue(value: SignalValue | undefined, width: number): SignalValue {
+  return (value ?? 0) & widthMask(width);
+}
+
+function setPortValue(map: PortValueMap, nodeId: string, portId: string, value: SignalValue): void {
   map[nodeId] = map[nodeId] ?? {};
   map[nodeId][portId] = value;
 }
 
-function getSourceValue(edge: CircuitEdge, outputs: OutputMap): Bit | undefined {
+function getNode(edgeNodeId: string, nodesById: Map<string, CircuitNode>): CircuitNode | undefined {
+  return nodesById.get(edgeNodeId);
+}
+
+function getSourceValue(edge: CircuitEdge, outputs: OutputMap): SignalValue | undefined {
   const parsed = parseHandleId(edge.sourceHandle);
   if (!parsed || parsed.direction !== "out") return undefined;
   return outputs.get(outputKey(edge.source, parsed.portId));
@@ -57,9 +69,40 @@ function createIncomingMap(edges: CircuitEdge[]): IncomingMap {
   return incoming;
 }
 
-function readInputValue(nodeId: string, portId: string, incoming: IncomingMap, outputs: OutputMap): Bit | undefined {
+function getWireWidths(
+  edge: CircuitEdge,
+  nodesById: Map<string, CircuitNode>,
+): { sourceWidth: number; targetWidth: number } | null {
+  const source = parseHandleId(edge.sourceHandle);
+  const target = parseHandleId(edge.targetHandle);
+  const sourceNode = getNode(edge.source, nodesById);
+  const targetNode = getNode(edge.target, nodesById);
+
+  if (!source || source.direction !== "out" || !target || target.direction !== "in" || !sourceNode || !targetNode) {
+    return null;
+  }
+
+  return {
+    sourceWidth: getNodePortWidth(sourceNode, "out", source.portId),
+    targetWidth: getNodePortWidth(targetNode, "in", target.portId),
+  };
+}
+
+function hasWidthMismatch(edge: CircuitEdge, nodesById: Map<string, CircuitNode>): boolean {
+  const widths = getWireWidths(edge, nodesById);
+  return Boolean(widths && widths.sourceWidth !== widths.targetWidth);
+}
+
+function readInputValue(
+  nodeId: string,
+  portId: string,
+  incoming: IncomingMap,
+  outputs: OutputMap,
+  nodesById: Map<string, CircuitNode>,
+): SignalValue | undefined {
   const edges = incoming.get(inputKey(nodeId, portId)) ?? [];
   if (edges.length !== 1) return undefined;
+  if (hasWidthMismatch(edges[0], nodesById)) return undefined;
   return getSourceValue(edges[0], outputs);
 }
 
@@ -68,17 +111,31 @@ function collectIssues(
   edges: CircuitEdge[],
   incoming: IncomingMap,
   outputs: OutputMap,
+  nodesById: Map<string, CircuitNode>,
 ): SimulationIssue[] {
   const issues: SimulationIssue[] = [];
 
   for (const edge of edges) {
     const source = parseHandleId(edge.sourceHandle);
     const target = parseHandleId(edge.targetHandle);
+    const sourceNode = nodesById.get(edge.source);
+    const targetNode = nodesById.get(edge.target);
 
-    if (!source || source.direction !== "out" || !target || target.direction !== "in") {
+    if (!source || source.direction !== "out" || !target || target.direction !== "in" || !sourceNode || !targetNode) {
       issues.push({
         code: "invalid-wire",
         message: "A wire must run from an output port to an input port.",
+        edgeId: edge.id,
+      });
+      continue;
+    }
+
+    const sourceWidth = getNodePortWidth(sourceNode, "out", source.portId);
+    const targetWidth = getNodePortWidth(targetNode, "in", target.portId);
+    if (sourceWidth !== targetWidth) {
+      issues.push({
+        code: "width-mismatch",
+        message: `A ${sourceWidth}-bit output cannot drive a ${targetWidth}-bit input.`,
         edgeId: edge.id,
       });
       continue;
@@ -114,7 +171,10 @@ function collectIssues(
           nodeId: node.id,
           portId: port.id,
         });
-      } else if (readInputValue(node.id, port.id, incoming, outputs) === undefined) {
+      } else if (
+        !hasWidthMismatch(inputEdges[0], nodesById) &&
+        readInputValue(node.id, port.id, incoming, outputs, nodesById) === undefined
+      ) {
         issues.push({
           code: "floating-source",
           message: `${node.data.label}.${port.label} is connected to an unknown signal.`,
@@ -143,15 +203,16 @@ function collectIssues(
 export function simulateCircuit(
   nodes: CircuitNode[],
   edges: CircuitEdge[],
-  inputOverrides: Record<string, Bit> = {},
+  inputOverrides: Record<string, SignalValue> = {},
 ): SimulationResult {
   const outputs: OutputMap = new Map();
   const incoming = createIncomingMap(edges);
+  const nodesById = new Map(nodes.map((node) => [node.id, node]));
 
   for (const node of nodes) {
     if (node.data.kind === "input") {
       const value = inputOverrides[node.data.label] ?? node.data.value ?? 0;
-      outputs.set(outputKey(node.id, "out"), value);
+      outputs.set(outputKey(node.id, "out"), normalizeValue(value, getNodePortWidth(node, "out", "out")));
     }
   }
 
@@ -164,16 +225,16 @@ export function simulateCircuit(
       const definition = getDefinition(node.data.kind);
       if (!definition.evaluate) continue;
 
-      const values: Record<string, Bit> = {};
+      const values: Record<string, SignalValue> = {};
       let ready = true;
 
       for (const port of definition.inputs) {
-        const value = readInputValue(node.id, port.id, incoming, outputs);
+        const value = readInputValue(node.id, port.id, incoming, outputs, nodesById);
         if (value === undefined) {
           ready = false;
           break;
         }
-        values[port.id] = value;
+        values[port.id] = normalizeValue(value, getNodePortWidth(node, "in", port.id));
       }
 
       if (!ready) continue;
@@ -181,8 +242,9 @@ export function simulateCircuit(
       const nextOutputs = definition.evaluate(values);
       for (const [portId, value] of Object.entries(nextOutputs)) {
         const key = outputKey(node.id, portId);
-        if (outputs.get(key) !== value) {
-          outputs.set(key, value);
+        const normalized = normalizeValue(value, getNodePortWidth(node, "out", portId));
+        if (outputs.get(key) !== normalized) {
+          outputs.set(key, normalized);
           changed = true;
         }
       }
@@ -198,22 +260,27 @@ export function simulateCircuit(
     const definition = getDefinition(node.data.kind);
 
     for (const port of definition.inputs) {
-      const value = readInputValue(node.id, port.id, incoming, outputs);
-      if (value !== undefined) setPortValue(nodeInputs, node.id, port.id, value);
+      const value = readInputValue(node.id, port.id, incoming, outputs, nodesById);
+      if (value !== undefined)
+        setPortValue(nodeInputs, node.id, port.id, normalizeValue(value, getNodePortWidth(node, "in", port.id)));
     }
 
     for (const port of definition.outputs) {
       const value = outputs.get(outputKey(node.id, port.id));
-      if (value !== undefined) setPortValue(nodeOutputs, node.id, port.id, value);
+      if (value !== undefined) {
+        setPortValue(nodeOutputs, node.id, port.id, normalizeValue(value, getNodePortWidth(node, "out", port.id)));
+      }
     }
   }
 
   const edgeValues = Object.fromEntries(edges.map((edge) => [edge.id, getSourceValue(edge, outputs)]));
 
-  const outputsByLabel: Record<string, Bit | undefined> = {};
+  const outputsByLabel: Record<string, SignalValue | undefined> = {};
   for (const node of nodes) {
     if (node.data.kind !== "output") continue;
-    outputsByLabel[node.data.label] = readInputValue(node.id, "in", incoming, outputs);
+    const value = readInputValue(node.id, "in", incoming, outputs, nodesById);
+    outputsByLabel[node.data.label] =
+      value === undefined ? undefined : normalizeValue(value, getNodePortWidth(node, "in", "in"));
   }
 
   return {
@@ -221,6 +288,6 @@ export function simulateCircuit(
     nodeOutputs,
     edgeValues,
     outputsByLabel,
-    issues: collectIssues(nodes, edges, incoming, outputs),
+    issues: collectIssues(nodes, edges, incoming, outputs, nodesById),
   };
 }

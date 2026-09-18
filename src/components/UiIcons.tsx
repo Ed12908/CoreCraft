@@ -1,7 +1,7 @@
 // biome-ignore-all lint/a11y/noSvgWithoutTitle: Decorative icons are hidden from assistive tech.
 import type { SVGProps } from "react";
 
-type UiIconName =
+export type UiIconName =
   | "and"
   | "arrow"
   | "check"

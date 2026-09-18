@@ -1,6 +1,7 @@
 import type { Edge, Node } from "@xyflow/react";
 
 export type Bit = 0 | 1;
+export type SignalValue = number;
 
 export const bitValues = [0, 1] as const;
 
@@ -8,7 +9,23 @@ export function toBit(value: unknown): Bit {
   return value === 1 || value === true ? 1 : 0;
 }
 
-export type GateKind = "not" | "and" | "or" | "xor";
+export type GateKind =
+  | "const0"
+  | "const1"
+  | "not"
+  | "and"
+  | "or"
+  | "xor"
+  | "halfAdder"
+  | "fullAdder"
+  | "adder2"
+  | "adder4"
+  | "bus4"
+  | "splitter"
+  | "joiner"
+  | "comparator"
+  | "incrementer"
+  | "subtractor";
 export type IoKind = "input" | "output";
 export type ComponentKind = IoKind | GateKind;
 
@@ -18,6 +35,7 @@ export type PortSpec = {
   id: string;
   label: string;
   direction: PortDirection;
+  width: number;
 };
 
 export type ComponentDefinition = {
@@ -27,14 +45,15 @@ export type ComponentDefinition = {
   description: string;
   inputs: PortSpec[];
   outputs: PortSpec[];
-  evaluate?: (inputs: Record<string, Bit>) => Record<string, Bit>;
+  evaluate?: (inputs: Record<string, SignalValue>) => Record<string, SignalValue>;
 };
 
 export type CircuitNodeData = {
   kind: ComponentKind;
   label: string;
   fixed?: boolean;
-  value?: Bit;
+  value?: SignalValue;
+  width?: number;
 } & Record<string, unknown>;
 
 export type CircuitNode = Node<CircuitNodeData, "component">;
@@ -42,14 +61,15 @@ export type CircuitEdge = Edge<Record<string, unknown>>;
 
 export type LogicCase = {
   name: string;
-  inputs: Record<string, Bit>;
-  outputs: Record<string, Bit>;
+  inputs: Record<string, SignalValue>;
+  outputs: Record<string, SignalValue>;
 };
 
 export type LevelGiven = {
   id: string;
   kind: IoKind;
   label: string;
+  width?: number;
   position: { x: number; y: number };
 };
 

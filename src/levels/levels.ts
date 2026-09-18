@@ -1,5 +1,49 @@
-import type { Level } from "../engine/types";
+import type { Level, LevelGiven, LogicCase, SignalValue } from "../engine/types";
 import { levelsSchema } from "./schema";
+
+const bit = (value: number, index: number): SignalValue => (value >> index) & 1;
+
+function given(kind: LevelGiven["kind"], label: string, x: number, y: number, width = 1): LevelGiven {
+  return {
+    id: `${kind}-${label.toLowerCase()}`,
+    kind,
+    label,
+    ...(width > 1 ? { width } : {}),
+    position: { x, y },
+  };
+}
+
+function bits(prefix: string, width: number, value: number): Record<string, SignalValue> {
+  return Object.fromEntries(Array.from({ length: width }, (_, index) => [`${prefix}${index}`, bit(value, index)]));
+}
+
+function bitGivens(prefix: string, count: number, x: number, startY: number, step = 64): LevelGiven[] {
+  return Array.from({ length: count }, (_, index) => given("input", `${prefix}${index}`, x, startY + index * step));
+}
+
+function bitOutputs(prefix: string, count: number, x: number, startY: number, step = 64): LevelGiven[] {
+  return Array.from({ length: count }, (_, index) => given("output", `${prefix}${index}`, x, startY + index * step));
+}
+
+function adderCase(width: 2 | 4, a: number, b: number, cin = 0): LogicCase {
+  const sum = a + b + cin;
+  const mask = 2 ** width - 1;
+  return {
+    name: `${a} + ${b}${cin ? " + carry" : ""}`,
+    inputs: { ...bits("A", width, a), ...bits("B", width, b), CIN: cin },
+    outputs: { ...bits("S", width, sum & mask), COUT: bit(sum, width) },
+  };
+}
+
+function overflowCase(a: number, b: number): LogicCase {
+  const sum = (a + b) & 0xf;
+  const overflow = bit(a, 3) === bit(b, 3) && bit(a, 3) !== bit(sum, 3) ? 1 : 0;
+  return {
+    name: `${a.toString(16).toUpperCase()} + ${b.toString(16).toUpperCase()}`,
+    inputs: { ...bits("A", 4, a), ...bits("B", 4, b), CIN: 0 },
+    outputs: { ...bits("S", 4, sum), COUT: bit(a + b, 4), OVF: overflow },
+  };
+}
 
 const rawLevels: Level[] = [
   {
@@ -9,10 +53,7 @@ const rawLevels: Level[] = [
     prompt: "Connect switch A to lamp OUT. The lamp should copy the switch value.",
     allowedComponents: [],
     minimumComponents: 0,
-    givens: [
-      { id: "input-a", kind: "input", label: "A", position: { x: 60, y: 160 } },
-      { id: "output-out", kind: "output", label: "OUT", position: { x: 560, y: 160 } },
-    ],
+    givens: [given("input", "A", 60, 160), given("output", "OUT", 560, 160)],
     tests: [
       { name: "A = 0", inputs: { A: 0 }, outputs: { OUT: 0 } },
       { name: "A = 1", inputs: { A: 1 }, outputs: { OUT: 1 } },
@@ -28,10 +69,7 @@ const rawLevels: Level[] = [
     prompt: "Use a NOT gate so OUT is 1 when A is 0, and 0 when A is 1.",
     allowedComponents: ["not"],
     minimumComponents: 1,
-    givens: [
-      { id: "input-a", kind: "input", label: "A", position: { x: 60, y: 160 } },
-      { id: "output-out", kind: "output", label: "OUT", position: { x: 640, y: 160 } },
-    ],
+    givens: [given("input", "A", 60, 160), given("output", "OUT", 640, 160)],
     tests: [
       { name: "A = 0", inputs: { A: 0 }, outputs: { OUT: 1 } },
       { name: "A = 1", inputs: { A: 1 }, outputs: { OUT: 0 } },
@@ -47,11 +85,7 @@ const rawLevels: Level[] = [
     prompt: "Use an AND gate so OUT is 1 only when both A and B are 1.",
     allowedComponents: ["and"],
     minimumComponents: 1,
-    givens: [
-      { id: "input-a", kind: "input", label: "A", position: { x: 60, y: 100 } },
-      { id: "input-b", kind: "input", label: "B", position: { x: 60, y: 240 } },
-      { id: "output-out", kind: "output", label: "OUT", position: { x: 660, y: 170 } },
-    ],
+    givens: [given("input", "A", 60, 100), given("input", "B", 60, 240), given("output", "OUT", 660, 170)],
     tests: [
       { name: "00", inputs: { A: 0, B: 0 }, outputs: { OUT: 0 } },
       { name: "01", inputs: { A: 0, B: 1 }, outputs: { OUT: 0 } },
@@ -69,11 +103,7 @@ const rawLevels: Level[] = [
     prompt: "Use an OR gate so OUT is 1 when A or B is 1.",
     allowedComponents: ["or"],
     minimumComponents: 1,
-    givens: [
-      { id: "input-a", kind: "input", label: "A", position: { x: 60, y: 100 } },
-      { id: "input-b", kind: "input", label: "B", position: { x: 60, y: 240 } },
-      { id: "output-out", kind: "output", label: "OUT", position: { x: 660, y: 170 } },
-    ],
+    givens: [given("input", "A", 60, 100), given("input", "B", 60, 240), given("output", "OUT", 660, 170)],
     tests: [
       { name: "00", inputs: { A: 0, B: 0 }, outputs: { OUT: 0 } },
       { name: "01", inputs: { A: 0, B: 1 }, outputs: { OUT: 1 } },
@@ -91,11 +121,7 @@ const rawLevels: Level[] = [
     prompt: "Build XOR using NOT, AND, and OR. OUT should be 1 only when exactly one input is 1.",
     allowedComponents: ["not", "and", "or"],
     minimumComponents: 4,
-    givens: [
-      { id: "input-a", kind: "input", label: "A", position: { x: 60, y: 100 } },
-      { id: "input-b", kind: "input", label: "B", position: { x: 60, y: 260 } },
-      { id: "output-out", kind: "output", label: "OUT", position: { x: 760, y: 180 } },
-    ],
+    givens: [given("input", "A", 60, 100), given("input", "B", 60, 260), given("output", "OUT", 760, 180)],
     tests: [
       { name: "00", inputs: { A: 0, B: 0 }, outputs: { OUT: 0 } },
       { name: "01", inputs: { A: 0, B: 1 }, outputs: { OUT: 1 } },
@@ -117,10 +143,10 @@ const rawLevels: Level[] = [
     allowedComponents: ["xor", "and"],
     minimumComponents: 2,
     givens: [
-      { id: "input-a", kind: "input", label: "A", position: { x: 60, y: 100 } },
-      { id: "input-b", kind: "input", label: "B", position: { x: 60, y: 260 } },
-      { id: "output-sum", kind: "output", label: "SUM", position: { x: 680, y: 100 } },
-      { id: "output-carry", kind: "output", label: "CARRY", position: { x: 680, y: 260 } },
+      given("input", "A", 60, 100),
+      given("input", "B", 60, 260),
+      given("output", "SUM", 680, 100),
+      given("output", "CARRY", 680, 260),
     ],
     tests: [
       { name: "0 + 0", inputs: { A: 0, B: 0 }, outputs: { SUM: 0, CARRY: 0 } },
@@ -128,9 +154,331 @@ const rawLevels: Level[] = [
       { name: "1 + 0", inputs: { A: 1, B: 0 }, outputs: { SUM: 1, CARRY: 0 } },
       { name: "1 + 1", inputs: { A: 1, B: 1 }, outputs: { SUM: 0, CARRY: 1 } },
     ],
-    unlocks: [],
+    unlocks: ["halfAdder"],
     hints: ["Use XOR for SUM and AND for CARRY.", "A single input output can feed multiple gates."],
-    successMessage: "The half adder passes every case. This is the first reusable arithmetic unit.",
+    successMessage: "The half adder passes every case. HA is now available.",
+  },
+  {
+    id: "full-adder",
+    title: "Full Adder",
+    chapter: "Adders",
+    prompt: "Build a full adder from two half adders. SUM adds A, B, and CIN; COUT is either carry.",
+    allowedComponents: ["halfAdder", "or"],
+    minimumComponents: 3,
+    givens: [
+      given("input", "A", 60, 70),
+      given("input", "B", 60, 190),
+      given("input", "CIN", 60, 310),
+      given("output", "SUM", 740, 120),
+      given("output", "COUT", 740, 260),
+    ],
+    tests: [
+      { name: "000", inputs: { A: 0, B: 0, CIN: 0 }, outputs: { SUM: 0, COUT: 0 } },
+      { name: "001", inputs: { A: 0, B: 0, CIN: 1 }, outputs: { SUM: 1, COUT: 0 } },
+      { name: "010", inputs: { A: 0, B: 1, CIN: 0 }, outputs: { SUM: 1, COUT: 0 } },
+      { name: "011", inputs: { A: 0, B: 1, CIN: 1 }, outputs: { SUM: 0, COUT: 1 } },
+      { name: "100", inputs: { A: 1, B: 0, CIN: 0 }, outputs: { SUM: 1, COUT: 0 } },
+      { name: "101", inputs: { A: 1, B: 0, CIN: 1 }, outputs: { SUM: 0, COUT: 1 } },
+      { name: "110", inputs: { A: 1, B: 1, CIN: 0 }, outputs: { SUM: 0, COUT: 1 } },
+      { name: "111", inputs: { A: 1, B: 1, CIN: 1 }, outputs: { SUM: 1, COUT: 1 } },
+    ],
+    unlocks: ["fullAdder"],
+    hints: [
+      "Feed A and B into the first half adder.",
+      "Feed that SUM and CIN into the second half adder.",
+      "OR the two carry outputs to make COUT.",
+    ],
+    successMessage: "The full adder works. FA is now available.",
+  },
+  {
+    id: "two-bit-ripple-adder",
+    title: "2-Bit Ripple Adder",
+    chapter: "Adders",
+    prompt: "Build a 2-bit adder from two full adders. The low-bit carry must ripple into the high bit.",
+    allowedComponents: ["fullAdder"],
+    minimumComponents: 2,
+    givens: [
+      ...bitGivens("A", 2, 60, 50),
+      ...bitGivens("B", 2, 60, 210),
+      given("input", "CIN", 60, 360),
+      ...bitOutputs("S", 2, 790, 110),
+      given("output", "COUT", 790, 280),
+    ],
+    tests: [
+      adderCase(2, 0, 0),
+      adderCase(2, 0, 1),
+      adderCase(2, 1, 1),
+      adderCase(2, 2, 1),
+      adderCase(2, 2, 2),
+      adderCase(2, 3, 0),
+      adderCase(2, 3, 1),
+      adderCase(2, 3, 3),
+      adderCase(2, 1, 2, 1),
+      adderCase(2, 3, 3, 1),
+    ],
+    unlocks: ["adder2"],
+    hints: [
+      "Connect CIN to the low full adder.",
+      "Connect the low COUT to the high full adder's CIN.",
+      "The final high COUT is the circuit COUT.",
+    ],
+    successMessage: "The 2-bit ripple carry is working. ADD2 is now available.",
+  },
+  {
+    id: "four-bit-ripple-adder",
+    title: "4-Bit Ripple Adder",
+    chapter: "Adders",
+    prompt: "Build a 4-bit adder by chaining two 2-bit adders. Carry from the low pair feeds the high pair.",
+    allowedComponents: ["adder2"],
+    minimumComponents: 2,
+    givens: [
+      ...bitGivens("A", 4, 60, 40, 54),
+      ...bitGivens("B", 4, 190, 40, 54),
+      given("input", "CIN", 60, 300),
+      ...bitOutputs("S", 4, 840, 55, 54),
+      given("output", "COUT", 840, 310),
+    ],
+    tests: [
+      adderCase(4, 0, 0),
+      adderCase(4, 1, 1),
+      adderCase(4, 2, 5),
+      adderCase(4, 7, 1),
+      adderCase(4, 8, 7),
+      adderCase(4, 10, 5),
+      adderCase(4, 15, 0),
+      adderCase(4, 15, 1),
+      adderCase(4, 15, 15),
+      adderCase(4, 6, 9, 1),
+    ],
+    unlocks: ["adder4"],
+    hints: [
+      "The first ADD2 handles A0/A1 and B0/B1.",
+      "The second ADD2 handles A2/A3 and B2/B3.",
+      "Wire the first COUT into the second CIN.",
+    ],
+    successMessage: "The 4-bit adder passes. ADD4 is now available.",
+  },
+  {
+    id: "carry-out-lamp",
+    title: "Carry-Out Lamp",
+    chapter: "Adders",
+    prompt: "Use ADD4 to produce S0-S3 and light COUT when the unsigned sum needs a fifth bit.",
+    allowedComponents: ["adder4"],
+    minimumComponents: 1,
+    givens: [
+      ...bitGivens("A", 4, 60, 40, 54),
+      ...bitGivens("B", 4, 190, 40, 54),
+      given("input", "CIN", 60, 300),
+      ...bitOutputs("S", 4, 840, 55, 54),
+      given("output", "COUT", 840, 310),
+    ],
+    tests: [
+      adderCase(4, 0, 0),
+      adderCase(4, 7, 8),
+      adderCase(4, 8, 8),
+      adderCase(4, 15, 0),
+      adderCase(4, 15, 1),
+      adderCase(4, 15, 15),
+    ],
+    unlocks: [],
+    hints: ["COUT is separate from the four visible SUM bits.", "A sum of 16 or more wraps in S0-S3 and raises COUT."],
+    successMessage: "Carry-out is wired correctly.",
+  },
+  {
+    id: "signed-overflow",
+    title: "Overflow Challenge",
+    chapter: "Adders",
+    prompt: "Add signed overflow detection. OVF is 1 when A and B have the same sign but S has the opposite sign.",
+    allowedComponents: ["adder4", "xor", "not", "and"],
+    minimumComponents: 5,
+    givens: [
+      ...bitGivens("A", 4, 60, 40, 54),
+      ...bitGivens("B", 4, 190, 40, 54),
+      given("input", "CIN", 60, 300),
+      ...bitOutputs("S", 4, 860, 45, 50),
+      given("output", "COUT", 860, 280),
+      given("output", "OVF", 860, 350),
+    ],
+    tests: [
+      overflowCase(0x1, 0x1),
+      overflowCase(0x7, 0x1),
+      overflowCase(0x4, 0x4),
+      overflowCase(0x8, 0xf),
+      overflowCase(0xc, 0xb),
+      overflowCase(0x2, 0xf),
+      overflowCase(0x8, 0x7),
+      overflowCase(0xf, 0xf),
+    ],
+    unlocks: [],
+    hints: [
+      "A3, B3, and S3 are the sign bits.",
+      "One compact formula is (A3 XOR S3) AND NOT (A3 XOR B3).",
+      "Keep the ADD4 sum and carry-out wired while you build the OVF logic.",
+    ],
+    successMessage: "Signed overflow detection is working.",
+  },
+  {
+    id: "bus-input-block",
+    title: "4-Bit Input Block",
+    chapter: "Buses",
+    prompt: "Connect the 4-bit input A directly to OUT. One bus wire carries values from 0x0 through 0xF.",
+    allowedComponents: [],
+    minimumComponents: 0,
+    givens: [given("input", "A", 80, 170, 4), given("output", "OUT", 620, 170, 4)],
+    tests: [
+      { name: "zero", inputs: { A: 0x0 }, outputs: { OUT: 0x0 } },
+      { name: "one", inputs: { A: 0x1 }, outputs: { OUT: 0x1 } },
+      { name: "five", inputs: { A: 0x5 }, outputs: { OUT: 0x5 } },
+      { name: "ten", inputs: { A: 0xa }, outputs: { OUT: 0xa } },
+      { name: "fifteen", inputs: { A: 0xf }, outputs: { OUT: 0xf } },
+    ],
+    unlocks: ["bus4"],
+    hints: ["A 4-bit handle must connect to another 4-bit handle.", "Click A on the canvas to cycle its live value."],
+    successMessage: "The 4-bit bus is moving intact. BUS4 is now available.",
+  },
+  {
+    id: "split-bus",
+    title: "Split a Bus",
+    chapter: "Buses",
+    prompt: "Use a splitter to expose each bit of the 4-bit input A as B0, B1, B2, and B3.",
+    allowedComponents: ["splitter"],
+    minimumComponents: 1,
+    givens: [
+      given("input", "A", 80, 190, 4),
+      given("output", "B0", 720, 70),
+      given("output", "B1", 720, 150),
+      given("output", "B2", 720, 230),
+      given("output", "B3", 720, 310),
+    ],
+    tests: [
+      { name: "0x0", inputs: { A: 0x0 }, outputs: bits("B", 4, 0x0) },
+      { name: "0x1", inputs: { A: 0x1 }, outputs: bits("B", 4, 0x1) },
+      { name: "0x5", inputs: { A: 0x5 }, outputs: bits("B", 4, 0x5) },
+      { name: "0xA", inputs: { A: 0xa }, outputs: bits("B", 4, 0xa) },
+      { name: "0xF", inputs: { A: 0xf }, outputs: bits("B", 4, 0xf) },
+    ],
+    unlocks: ["splitter"],
+    hints: ["B0 is the low bit.", "B3 is the high bit."],
+    successMessage: "The splitter exposes every bus bit. SPLIT is now available.",
+  },
+  {
+    id: "join-bits",
+    title: "Join Bits Into a Bus",
+    chapter: "Buses",
+    prompt: "Use a joiner to pack B0-B3 into the 4-bit OUT bus.",
+    allowedComponents: ["joiner"],
+    minimumComponents: 1,
+    givens: [...bitGivens("B", 4, 80, 55, 74), given("output", "OUT", 720, 180, 4)],
+    tests: [
+      { name: "0x0", inputs: bits("B", 4, 0x0), outputs: { OUT: 0x0 } },
+      { name: "0x3", inputs: bits("B", 4, 0x3), outputs: { OUT: 0x3 } },
+      { name: "0x6", inputs: bits("B", 4, 0x6), outputs: { OUT: 0x6 } },
+      { name: "0x9", inputs: bits("B", 4, 0x9), outputs: { OUT: 0x9 } },
+      { name: "0xF", inputs: bits("B", 4, 0xf), outputs: { OUT: 0xf } },
+    ],
+    unlocks: ["joiner"],
+    hints: ["B0 contributes 1, B1 contributes 2, B2 contributes 4, and B3 contributes 8."],
+    successMessage: "The joiner packs four bits into one bus. JOIN is now available.",
+  },
+  {
+    id: "compare-four-bit",
+    title: "Compare 4-Bit Numbers",
+    chapter: "Buses",
+    prompt: "Build an equality comparator. EQ should be 1 only when 4-bit inputs A and B are exactly the same.",
+    allowedComponents: ["splitter", "xor", "not", "and"],
+    minimumComponents: 13,
+    givens: [given("input", "A", 80, 130, 4), given("input", "B", 80, 260, 4), given("output", "EQ", 820, 190)],
+    tests: [
+      { name: "0 equals 0", inputs: { A: 0x0, B: 0x0 }, outputs: { EQ: 1 } },
+      { name: "5 equals 5", inputs: { A: 0x5, B: 0x5 }, outputs: { EQ: 1 } },
+      { name: "F equals F", inputs: { A: 0xf, B: 0xf }, outputs: { EQ: 1 } },
+      { name: "0 not 1", inputs: { A: 0x0, B: 0x1 }, outputs: { EQ: 0 } },
+      { name: "6 not 7", inputs: { A: 0x6, B: 0x7 }, outputs: { EQ: 0 } },
+      { name: "8 not 0", inputs: { A: 0x8, B: 0x0 }, outputs: { EQ: 0 } },
+    ],
+    unlocks: ["comparator"],
+    hints: [
+      "Split both buses first.",
+      "XOR tells you whether two bits are different.",
+      "Invert each difference, then AND all four matches together.",
+    ],
+    successMessage: "The equality comparator passes. CMP is now available.",
+  },
+  {
+    id: "four-bit-incrementer",
+    title: "4-Bit Incrementer",
+    chapter: "Buses",
+    prompt: "Make OUT equal A + 1 modulo 16. Split A, add 0001 with ADD4, then join the sum bits.",
+    allowedComponents: ["splitter", "joiner", "adder4", "const0", "const1"],
+    minimumComponents: 5,
+    givens: [given("input", "A", 80, 170, 4), given("output", "OUT", 840, 170, 4)],
+    tests: [
+      { name: "0x0 -> 0x1", inputs: { A: 0x0 }, outputs: { OUT: 0x1 } },
+      { name: "0x1 -> 0x2", inputs: { A: 0x1 }, outputs: { OUT: 0x2 } },
+      { name: "0x7 -> 0x8", inputs: { A: 0x7 }, outputs: { OUT: 0x8 } },
+      { name: "0xE -> 0xF", inputs: { A: 0xe }, outputs: { OUT: 0xf } },
+      { name: "0xF -> 0x0", inputs: { A: 0xf }, outputs: { OUT: 0x0 } },
+    ],
+    unlocks: ["incrementer"],
+    hints: [
+      "Use CONST 1 for B0.",
+      "Use one CONST 0 for B1, B2, B3, and CIN.",
+      "The COUT from ADD4 is ignored for modulo-16 increment.",
+    ],
+    successMessage: "The 4-bit incrementer wraps correctly. INC is now available.",
+  },
+  {
+    id: "twos-complement-negation",
+    title: "Two's-Complement Negation",
+    chapter: "Buses",
+    prompt: "Make OUT equal -A in 4-bit two's complement: invert every bit, then add 1.",
+    allowedComponents: ["splitter", "joiner", "not", "adder4", "const0", "const1"],
+    minimumComponents: 9,
+    givens: [given("input", "A", 80, 170, 4), given("output", "OUT", 860, 170, 4)],
+    tests: [
+      { name: "-0", inputs: { A: 0x0 }, outputs: { OUT: 0x0 } },
+      { name: "-1", inputs: { A: 0x1 }, outputs: { OUT: 0xf } },
+      { name: "-2", inputs: { A: 0x2 }, outputs: { OUT: 0xe } },
+      { name: "-7", inputs: { A: 0x7 }, outputs: { OUT: 0x9 } },
+      { name: "-8", inputs: { A: 0x8 }, outputs: { OUT: 0x8 } },
+      { name: "-15", inputs: { A: 0xf }, outputs: { OUT: 0x1 } },
+    ],
+    unlocks: [],
+    hints: [
+      "Split A so each bit can pass through a NOT gate.",
+      "Feed the inverted bits into ADD4's A side.",
+      "Add 0001 on the B side, then join S0-S3.",
+    ],
+    successMessage: "Two's-complement negation works for all tested values.",
+  },
+  {
+    id: "subtractor-from-adder",
+    title: "Subtractor From an Adder",
+    chapter: "Buses",
+    prompt: "Build A - B by feeding A and NOT B into ADD4 with CIN set to 1. DIFF is the 4-bit result.",
+    allowedComponents: ["splitter", "joiner", "not", "adder4", "const1"],
+    minimumComponents: 10,
+    givens: [
+      given("input", "A", 80, 130, 4),
+      given("input", "B", 80, 260, 4),
+      given("output", "DIFF", 880, 150, 4),
+      given("output", "BORROW", 880, 280),
+    ],
+    tests: [
+      { name: "0 - 0", inputs: { A: 0x0, B: 0x0 }, outputs: { DIFF: 0x0, BORROW: 0 } },
+      { name: "5 - 3", inputs: { A: 0x5, B: 0x3 }, outputs: { DIFF: 0x2, BORROW: 0 } },
+      { name: "3 - 5", inputs: { A: 0x3, B: 0x5 }, outputs: { DIFF: 0xe, BORROW: 1 } },
+      { name: "0 - 1", inputs: { A: 0x0, B: 0x1 }, outputs: { DIFF: 0xf, BORROW: 1 } },
+      { name: "F - 1", inputs: { A: 0xf, B: 0x1 }, outputs: { DIFF: 0xe, BORROW: 0 } },
+      { name: "8 - 8", inputs: { A: 0x8, B: 0x8 }, outputs: { DIFF: 0x0, BORROW: 0 } },
+    ],
+    unlocks: ["subtractor"],
+    hints: [
+      "Split both input buses.",
+      "Invert every B bit before it reaches ADD4.",
+      "Borrow is NOT COUT for this two's-complement subtractor.",
+    ],
+    successMessage: "The subtractor is complete. SUB is now available.",
   },
 ];
 

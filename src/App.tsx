@@ -5,6 +5,7 @@ import { InspectorPanel } from "./components/InspectorPanel";
 import { LevelNavigator } from "./components/LevelNavigator";
 import { LibraryPanel } from "./components/LibraryPanel";
 import { TopHud } from "./components/TopHud";
+import { getDefinition, getMaxValueForNode } from "./engine/componentRegistry";
 import { createGateNode, createGivenNode } from "./engine/nodeFactory";
 import { runLevelTests, type TestRunResult } from "./engine/runLevelTests";
 import { countPlacedComponents, maxPointsForLevel, scoreCircuit } from "./engine/scoring";
@@ -90,7 +91,7 @@ function App() {
             ...node,
             data: {
               ...node.data,
-              value: node.data.value === 1 ? 0 : 1,
+              value: ((node.data.value ?? 0) + 1) & getMaxValueForNode(node),
             },
           };
         }),
@@ -104,7 +105,7 @@ function App() {
       if (!level.allowedComponents.includes(kind)) return;
       const offset = nodes.filter((node) => node.data.kind === kind).length * 24;
       setNodes((currentNodes) => [...currentNodes, createGateNode(kind, { x: 320 + offset, y: 150 + offset })]);
-      setStatusMessage(`${kind.toUpperCase()} gate added.`);
+      setStatusMessage(`${getDefinition(kind).shortTitle} added.`);
     },
     [level.allowedComponents, nodes, setNodes],
   );

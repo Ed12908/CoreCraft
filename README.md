@@ -11,7 +11,9 @@ A first playable version of a level-based circuit game that grows toward a real 
 - Click-to-add component library fallback
 - Switch/input and lamp/output nodes
 - NOT, AND, OR, XOR gates
-- Six levels from direct wiring through a half adder
+- Reusable half/full adders, 2-bit and 4-bit adders
+- 4-bit buses, splitters, joiners, constants, comparator, incrementer, and subtractor components
+- Eighteen levels from direct wiring through chapter 3 buses and reusable parts
 - Level tests with automatic pass/fail checks
 - Local progress and saved circuits with Zustand persist
 - Deterministic combinational simulator
@@ -43,6 +45,7 @@ npm test
 3. Build an AND circuit.
 4. Build an OR circuit.
 5. Build XOR from NOT, AND, and OR.
-6. Build a half adder using XOR and AND.
+6. Build adders from half adder through 4-bit ripple carry and overflow.
+7. Move to 4-bit buses with split, join, compare, increment, negate, and subtract missions.
 
 The circuit editor keeps level input and output nodes fixed from deletion. User-added gates can be moved, wired, and deleted. Solved levels are saved locally.

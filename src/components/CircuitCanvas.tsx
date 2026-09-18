@@ -10,7 +10,7 @@ import {
   useReactFlow,
 } from "@xyflow/react";
 import { useCallback, useMemo } from "react";
-import { parseHandleId } from "../engine/componentRegistry";
+import { getDefinition, getNodePortWidth, parseHandleId } from "../engine/componentRegistry";
 import { createGateNode } from "../engine/nodeFactory";
 import type { SimulationResult } from "../engine/simulator";
 import type { CircuitEdge, CircuitNode, GateKind } from "../engine/types";
@@ -39,7 +39,30 @@ type CircuitCanvasProps = {
   onMessage: (message: string) => void;
 };
 
-function isConnectionValid(connection: Connection, edges: CircuitEdge[]): boolean {
+function formatWireValue(value: number | undefined, width: number): string {
+  if (value === undefined) return "?";
+  if (width <= 1) return String(value);
+  return `0x${value.toString(16).toUpperCase()}`;
+}
+
+function getConnectionWidths(
+  connection: Connection,
+  nodes: CircuitNode[],
+): { sourceWidth: number; targetWidth: number } | null {
+  const source = parseHandleId(connection.sourceHandle);
+  const target = parseHandleId(connection.targetHandle);
+  const sourceNode = nodes.find((node) => node.id === connection.source);
+  const targetNode = nodes.find((node) => node.id === connection.target);
+
+  if (!source || !target || !sourceNode || !targetNode) return null;
+
+  return {
+    sourceWidth: getNodePortWidth(sourceNode, "out", source.portId),
+    targetWidth: getNodePortWidth(targetNode, "in", target.portId),
+  };
+}
+
+function isConnectionValid(connection: Connection, edges: CircuitEdge[], nodes: CircuitNode[]): boolean {
   const source = parseHandleId(connection.sourceHandle);
   const target = parseHandleId(connection.targetHandle);
 
@@ -47,6 +70,8 @@ function isConnectionValid(connection: Connection, edges: CircuitEdge[]): boolea
   if (source.direction !== "out" || target.direction !== "in") return false;
   if (!connection.source || !connection.target) return false;
   if (connection.source === connection.target) return false;
+  const widths = getConnectionWidths(connection, nodes);
+  if (!widths || widths.sourceWidth !== widths.targetWidth) return false;
 
   return !edges.some((edge) => edge.target === connection.target && edge.targetHandle === connection.targetHandle);
 }
@@ -68,23 +93,26 @@ export function CircuitCanvas({
     () =>
       edges.map((edge) => {
         const value = simulation.edgeValues[edge.id];
+        const source = parseHandleId(edge.sourceHandle);
+        const sourceNode = nodes.find((node) => node.id === edge.source);
+        const width = source && sourceNode ? getNodePortWidth(sourceNode, "out", source.portId) : 1;
         return {
           ...edge,
           type: "wire",
-          animated: value === 1,
-          label: value === undefined ? "?" : String(value),
-          className: value === 1 ? "signal-high" : value === 0 ? "signal-low" : "signal-unknown",
+          animated: value !== undefined && value !== 0,
+          label: formatWireValue(value, width),
+          className: value === undefined ? "signal-unknown" : value === 0 ? "signal-low" : "signal-high",
           labelBgPadding: [6, 3] as [number, number],
           labelBgBorderRadius: 8,
         };
       }),
-    [edges, simulation.edgeValues],
+    [edges, nodes, simulation.edgeValues],
   );
 
   const onConnect = useCallback(
     (connection: Connection) => {
-      if (!isConnectionValid(connection, edges)) {
-        onMessage("Invalid wire. Connect one output to one unused input.");
+      if (!isConnectionValid(connection, edges, nodes)) {
+        onMessage("Invalid wire. Match port direction, width, and use one driver per input.");
         return;
       }
 
@@ -100,7 +128,7 @@ export function CircuitCanvas({
       );
       onMessage("Wire connected.");
     },
-    [edges, onMessage, setEdges],
+    [edges, nodes, onMessage, setEdges],
   );
 
   const onDragOver = useCallback((event: React.DragEvent<HTMLDivElement>) => {
@@ -116,7 +144,7 @@ export function CircuitCanvas({
 
       const position = screenToFlowPosition({ x: event.clientX, y: event.clientY });
       setNodes((currentNodes) => [...currentNodes, createGateNode(kind, position)]);
-      onMessage(`${kind.toUpperCase()} gate added.`);
+      onMessage(`${getDefinition(kind).shortTitle} added.`);
     },
     [onMessage, screenToFlowPosition, setNodes],
   );

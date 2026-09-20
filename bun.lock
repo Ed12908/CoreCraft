@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "microcpu-game",
+      "name": "corecraft",
       "dependencies": {
         "@fontsource/orbitron": "5.2.8",
         "@fontsource/rajdhani": "5.2.7",

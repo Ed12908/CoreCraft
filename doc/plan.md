@@ -1,4 +1,4 @@
-# MicroCPU Game
+# CoreCraft
 
 This is a browser-first learning game, not a full HDL simulator.
 The best shape is a **mission-based circuit sandbox**: each level gives a goal, limited
@@ -32,8 +32,8 @@ itself. For touch support, prefer Pointer Events over plain HTML drag-and-drop.
 Use:
 
 ```bash
-npm create vite@latest microcpu-game -- --template react-ts
-cd microcpu-game
+npm create vite@latest corecraft -- --template react-ts
+cd corecraft
 
 npm install @xyflow/react zustand zod
 npm install tailwindcss@latest @tailwindcss/vite@latest daisyui@latest

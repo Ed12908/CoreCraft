@@ -58,7 +58,7 @@ export function TopHud({
           <UiIcon name="chip" />
         </div>
         <div className="brand-copy">
-          <h1>MicroCPU Builder</h1>
+          <h1>CoreCraft</h1>
           <p>Logic gates to a 4-bit processor</p>
         </div>
       </section>

@@ -1,4 +1,4 @@
-# MicroCPU Builder
+# CoreCraft
 
 A first playable version of a level-based circuit game that grows toward a real 4-bit microprocessor.
 
@@ -49,3 +49,7 @@ npm test
 7. Move to 4-bit buses with split, join, compare, increment, negate, and subtract missions.
 
 The circuit editor keeps level input and output nodes fixed from deletion. User-added gates can be moved, wired, and deleted. Solved levels are saved locally.
+
+## About
+
+Made by Edouard Binsztok under the MIT license.
